@@ -1,6 +1,6 @@
 # raylib-scm
 
-Chiken Scheme bindings for Raylib Game Library
+Chiken Scheme bindings for Raylib Game Library (https://www.raylib.com/, https://github.com/raysan5/raylib).
 
 ## DISCLAIMER
 
