@@ -27,6 +27,6 @@ See `examples` directory.
 
  - [ ] Implement enough bindings to rewrite in Scheme all Raylib examples
  - [ ] Rewrite in Scheme all Raylib examples
- - [ ] Allocate C objects in memory managed by Chicken: it's probably much more efficient than `alloc()`
+ - [ ] Allocate C objects in memory managed by Chicken: it's probably much more efficient than `malloc()`
  - [ ] Make API and deployment files more idiomatic for Chicken Scheme.
  - [ ] Write something funny and/or useful using this bindings.
