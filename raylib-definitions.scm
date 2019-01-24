@@ -180,6 +180,7 @@
 (define-foreign-record-type (bounding-box BoundingBox))
 (define-foreign-record-type (camera Camera))
 (define-foreign-record-type (color Color))
+(define-foreign-record-type (image Image))
 (define-foreign-record-type (material Material))
 (define-foreign-record-type (material-map MaterialMap))
 (define-foreign-record-type (matrix Matrix))

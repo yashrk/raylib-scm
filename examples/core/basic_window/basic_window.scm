@@ -19,4 +19,3 @@
       (close-window)))
 
 (main-loop)
-

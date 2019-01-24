@@ -229,16 +229,16 @@
 
      ;; Image/Texture2D data loading/unloading/saving functions
 
-     ;; load-image                                            ; Load image from file into CPU memory (RAM)
+     load-image                                            ; Load image from file into CPU memory (RAM)
      ;; load-image-ex                                         ; Load image from Color array data (RGBA - 32bit)
      ;; load-image-pro                                        ; Load image from raw data with parameters
      ;; load-image-raw                                        ; Load image from RAW file data
      ;; export-image                                          ; Export image data to file
      ;; export-image-as-code                                  ; Export image as code file defining an array of bytes
      load-texture                                          ; Load texture from file into GPU memory (VRAM)
-     ;; load-texture-from-image                               ; Load texture from image data
+     load-texture-from-image                               ; Load texture from image data
      load-render-texture                                   ; Load texture for rendering (framebuffer)
-     ;; unload-image                                          ; Unload image from CPU memory (RAM)
+     unload-image                                          ; Unload image from CPU memory (RAM)
      unload-texture                                        ; Unload texture from GPU memory (VRAM)
      unload-render-texture                                 ; Unload render texture from GPU memory
                                                            ; (VRAM)
@@ -299,8 +299,8 @@
      ;; set-texture-filter                                    ; Set texture scaling filter mode
      ;; set-texture-wrap                                      ; Set texture wrapping mode
 
-     ;; ; Texture2D drawing functions
-     ;; draw-texture                                          ; Draw a Texture2D
+     ;; Texture2D drawing functions
+     draw-texture                                          ; Draw a Texture2D
      ;; draw-texture-v                                        ; Draw a Texture2D with position defined as Vector2
      ;; draw-texture-ex                                       ; Draw a Texture2D with extended parameters
      draw-texture-rec                                      ; Draw a part of a texture defined by
@@ -403,7 +403,7 @@
      ;; gen-mesh-cylinder                                     ; Generate cylinder mesh
      ;; gen-mesh-torus                                        ; Generate torus mesh
      ;; gen-mesh-knot                                         ; Generate trefoil knot mesh
-     ;; gen-mesh-heightmap                                    ; Generate heightmap mesh from image data
+     gen-mesh-heightmap                                    ; Generate heightmap mesh from image data
      ;; gen-mesh-cubicmap                                     ; Generate cubes-based map mesh from image data
 
      ;; Material loading/unloading functions
@@ -796,13 +796,33 @@
 
   ;;; Texture Loading and Drawing Functions (Module: textures)
 
+  (define (load-image file-name)
+    (let ((new-image
+           ((foreign-lambda* image ((c-string fileName))
+              "Image* image = (Image*)malloc(sizeof(Image));
+               *image = LoadImage(fileName);
+               C_return(image);")
+            file-name)))
+      (set-finalizer! new-image free)
+      new-image))
+
   (define (load-texture file-name)
     (let ((new-texture
            ((foreign-lambda* texture-2d ((c-string fileName))
               "Texture2D* texture = (Texture2D*)malloc(sizeof(Texture2D));
-             *texture = LoadTexture(fileName);
-             C_return(texture);")
+               *texture = LoadTexture(fileName);
+               C_return(texture);")
             file-name)))
+      (set-finalizer! new-texture free)
+      new-texture))
+
+  (define (load-texture-from-image target-image)
+    (let ((new-texture
+           ((foreign-lambda* texture-2d (((c-pointer (struct Image)) targetImage))
+              "Texture2D* texture = (Texture2D*)malloc(sizeof(Texture2D));
+               *texture = LoadTextureFromImage(*targetImage);
+               C_return(texture);")
+            target-image)))
       (set-finalizer! new-texture free)
       new-texture))
 
@@ -815,6 +835,11 @@
             width height)))
       (set-finalizer! new-render-texture free)
       new-render-texture))
+
+  (define (unload-image image-to-unload)
+    ((foreign-lambda* void (((c-pointer (struct Image)) imageToUnload))
+       "UnloadImage(*imageToUnload);")
+    image-to-unload))
 
   (define (unload-texture texture-to-unload)
     ((foreign-lambda* void (((c-pointer (struct Texture2D)) textureToUnload))
@@ -834,6 +859,16 @@
 
   (define gen-texture-mipmaps
     (foreign-lambda void "GenTextureMipmaps" texture-2d))
+
+  ;; Texture2D drawing functions
+
+  (define (draw-texture texture pos-x pos-y tint)
+    ((foreign-lambda* void (((c-pointer (struct Texture2D)) texture)
+                            (int posX)
+                            (int posY)
+                            ((c-pointer (struct Color)) tint))
+       "DrawTexture(*texture, posX, posY, *tint);")
+     texture pos-x pos-y tint))
 
   (define (draw-texture-rec texture source-rec position tint)
     ((foreign-lambda* void (((c-pointer (struct Texture2D)) texture)
@@ -945,6 +980,17 @@
             width height length)))
       (set-finalizer! new-cube free)
       new-cube))
+
+  (define (gen-mesh-heightmap map-image size-vector)
+    (let ((new-mesh
+           ((foreign-lambda* mesh (((c-pointer (struct Image)) mapImage)
+                                   ((c-pointer (struct Vector3)) sizeVector))
+              "Mesh* mesh = (Mesh*)malloc(sizeof(Mesh));
+               *mesh = GenMeshHeightmap(*mapImage, *sizeVector);
+               C_return(mesh);")
+            map-image size-vector)))
+      (set-finalizer! new-mesh free)
+      new-mesh))
 
   ;; Material loading/unloading functions
 
