@@ -2,6 +2,8 @@
 
 Chiken Scheme bindings for Raylib Game Library (https://www.raylib.com/, https://github.com/raysan5/raylib).
 
+[![License](https://img.shields.io/github/license/yashrk/raylib-scm.svg?style=social)](LICENSE)
+
 ## DISCLAIMER
 
 I'm just researching features of Raylib and Chicken Scheme. These bindings are incomplete, probably inefficient and not idiomatic.  Use this bindings at your own risk. I even haven't any intent to long-term development of this code.
