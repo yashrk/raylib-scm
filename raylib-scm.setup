@@ -1,0 +1,10 @@
+(compile -s -O3 -d1 raylib-scm.scm -j raylib-scm "`pkg-config --libs raylib`")
+(compile -s raylib-scm.import.scm -O3 -d0 "`pkg-config --libs raylib`")
+
+(install-extension
+ ;; Name of your extension:
+ 'raylib-scm
+ ;; Files to install for your extension:
+ '("raylib-scm.so" "raylib-scm.import.so" "raylib-definitions.scm")
+ ;; Assoc list with properties for your extension:
+ '((version 0.0)))
