@@ -37,36 +37,36 @@ See `examples` directory.
 
 ### core
 
-![[basic window](https://github.com/yashrk/raylib-scm/blob/master/examples/core/3d_camera_first_person/3d_camera_first_person.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/basic_window)
-
-![[input keys](https://github.com/yashrk/raylib-scm/blob/master/examples/core/input_keys/input_keys.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/input_keys/)
-
-![[input mouse](https://github.com/yashrk/raylib-scm/blob/master/examples/core/input_mouse/input_mouse.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/input_mouse/)
-
-![[mouse wheel](https://github.com/yashrk/raylib-scm/blob/master/examples/core/mouse_wheel/mouse_wheel.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/mouse_wheel/)
-
-![[random values](https://github.com/yashrk/raylib-scm/blob/master/examples/core/random_values/random_values.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/random_values/)
-
-![[color select](https://github.com/yashrk/raylib-scm/blob/master/examples/core/color_select/color_select.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/color_select/)
-
-![[3d mode](https://github.com/yashrk/raylib-scm/blob/master/examples/core/3d_mode/3d_mode.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/3d_mode/)
-
-![[3d picking](https://github.com/yashrk/raylib-scm/blob/master/examples/core/3d_picking/3d_picking.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/3d_picking/)
-
-![[3d camera free](https://github.com/yashrk/raylib-scm/blob/master/examples/core/3d_camera_free/3d_camera_free.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/3d_camera_free/)
-
-![[3d camera first person](https://github.com/yashrk/raylib-scm/blob/master/examples/core/3d_camera_first_person/3d_camera_first_person.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/3d_camera_first_person/)
+[![basic window](https://github.com/yashrk/raylib-scm/blob/master/examples/core/basic_window/basic_window.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/basic_window)
+  
+[![input keys](https://github.com/yashrk/raylib-scm/blob/master/examples/core/input_keys/input_keys.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/input_keys/)
+  
+[![input mouse](https://github.com/yashrk/raylib-scm/blob/master/examples/core/input_mouse/input_mouse.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/input_mouse/)
+  
+[![mouse wheel](https://github.com/yashrk/raylib-scm/blob/master/examples/core/mouse_wheel/mouse_wheel.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/mouse_wheel/)
+  
+[![random values](https://github.com/yashrk/raylib-scm/blob/master/examples/core/random_values/random_values.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/random_values/)
+  
+[![color select](https://github.com/yashrk/raylib-scm/blob/master/examples/core/color_select/color_select.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/color_select/)
+  
+[![3d mode](https://github.com/yashrk/raylib-scm/blob/master/examples/core/3d_mode/3d_mode.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/3d_mode/)
+  
+[![3d picking](https://github.com/yashrk/raylib-scm/blob/master/examples/core/3d_picking/3d_picking.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/3d_picking/)
+  
+[![3d camera free](https://github.com/yashrk/raylib-scm/blob/master/examples/core/3d_camera_free/3d_camera_free.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/3d_camera_free/)
+  
+[![3d camera first person](https://github.com/yashrk/raylib-scm/blob/master/examples/core/3d_camera_first_person/3d_camera_first_person.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/3d_camera_first_person/)
 
 ### textures
 
-![[particles blending](https://github.com/yashrk/raylib-scm/blob/master/examples/textures/particles_blending/particles_blending.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/textures/particles_blending/)
+[![particles blending](https://github.com/yashrk/raylib-scm/blob/master/examples/textures/particles_blending/particles_blending.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/textures/particles_blending/)
 
 ### models
 
-![[obj loading](https://github.com/yashrk/raylib-scm/blob/master/examples/models/obj_loading/obj_loading.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/models/obj_loading/)
-
-![[heightmap](https://github.com/yashrk/raylib-scm/blob/master/examples/models/heightmap/heightmap.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/models/heightmap/)
+[![obj loading](https://github.com/yashrk/raylib-scm/blob/master/examples/models/obj_loading/obj_loading.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/models/obj_loading/)
+  
+[![heightmap](https://github.com/yashrk/raylib-scm/blob/master/examples/models/heightmap/heightmap.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/models/heightmap/)
 
 [skybox](https://github.com/yashrk/raylib-scm/tree/master/examples/models/skybox/)
 
-![[yaw pitch roll](https://github.com/yashrk/raylib-scm/blob/master/examples/models/yaw_pitch_roll/yaw_pitch_roll.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/models/yaw_pitch_roll/)
+[![yaw pitch roll](https://github.com/yashrk/raylib-scm/blob/master/examples/models/yaw_pitch_roll/yaw_pitch_roll.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/models/yaw_pitch_roll/)
