@@ -4,6 +4,31 @@ Chiken Scheme bindings for Raylib Game Library (https://www.raylib.com/, https:/
 
 [![License](https://img.shields.io/github/license/yashrk/raylib-scm.svg?style=social)](LICENSE)
 
+ * [DISCLAIMER](#disclaimer)
+ * [LICENSE WARNING](#license-warning)
+ * [Installation](#installation)
+ * [Usage](#usage)
+ * [ToDo](#todo)
+ * [Examples already implemented](#examples-already-implemented)
+    * [core](#core)
+       * [basic window](#basic-window)
+       * [input keys](#input-keys)
+       * [input mouse](#input-mouse)
+       * [mouse wheel](#mouse-wheel)
+       * [random values](#random-values)
+       * [color select](#color-select)
+       * [3d mode](#3d-mode)
+       * [3d picking](#3d-picking)
+       * [3d camera free](#3d-camera-free)
+       * [3d camera first person](#3d-camera-first-person)
+    * [textures](#textures)
+       * [particles blending](#particles-blending)
+    * [models](#models)
+       * [obj loading](#obj-loading)
+       * [heightmap](#heightmap)
+       * [skybox](#skybox)
+       * [yaw pitch roll](#yaw-pitch-roll)
+
 ## DISCLAIMER
 
 I'm just researching features of Raylib and Chicken Scheme. These bindings are incomplete, probably inefficient and not idiomatic.  Use this bindings at your own risk. I even haven't any intent to long-term development of this code.
