@@ -118,7 +118,7 @@
 
      ;; Input-related functions: keyboard
 
-     ;; is-key-pressed?                                       ; Detect if a key has been pressed once
+     is-key-pressed?                                       ; Detect if a key has been pressed once
      is-key-down?                                          ; Detect if a key is being pressed
      ;; is-key-released?                                      ; Detect if a key has been released once
      ;; is-key-up?                                            ; Detect if a key is NOT being pressed
@@ -714,6 +714,12 @@
   ;; Persistent storage management
 
   ;;; Input Handling Functions (Module: core)
+
+  (define (is-key-pressed? key-code)
+    (not (= ((foreign-lambda* int ((int keyCode))
+               "C_return(IsKeyPressed(keyCode));")
+             key-code)
+            0)))
 
   (define (is-key-down? key-code)
     (not (= ((foreign-lambda* int ((int keyCode))
