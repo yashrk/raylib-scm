@@ -83,7 +83,7 @@
 
      ;; Misc. functions
 
-     ;; set-config-flags                                      ; Setup window configuration flags (view FLAGS)
+     set-config-flags                                      ; Setup window configuration flags (view FLAGS)
      set-trace-log                                         ; Enable trace log message types
                                                            ; (bit flags based)
      ;; set-trace-log-callback                                ; Set a trace log callback to enable custom logging bypassing raylib's one
@@ -711,6 +711,9 @@
       new-color))
 
   ;; Misc. functions
+
+  (define set-config-flags
+    (foreign-lambda void "SetConfigFlags" unsigned-short))
 
   (define set-trace-log
     (foreign-lambda void "SetTraceLog" unsigned-short))

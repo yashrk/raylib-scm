@@ -22,6 +22,25 @@
   ((camera-first-person camera-mode/camera-first-person) CAMERA_FIRST_PERSON)
   ((camera-third-person camera-mode/camera-third-person) CAMERA_THIRD_PERSON))
 
+(define-foreign-enum-type (config-flag unsigned-short)
+  (config-flag->int int->config-flag)
+  ; Set to show raylib logo at startup
+  ((flag-show-logo          config-flag/flag-show-logo)          FLAG_SHOW_LOGO)
+  ; Set to run program in fullscreen
+  ((flag-fullscreen-mode    config-flag/flag-fullscreen-mode)    FLAG_FULLSCREEN_MODE)
+  ; Set to allow resizable window
+  ((flag-window-resizable   config-flag/flag-window-resizable)   FLAG_WINDOW_RESIZABLE)
+  ; Set to disable window decoration (frame and buttons)
+  ((flag-window-undecorated config-flag/flag-window-undecorated) FLAG_WINDOW_UNDECORATED)
+  ; Set to allow transparent window
+  ((flag-window-transparent config-flag/flag-window-transparent) FLAG_WINDOW_TRANSPARENT)
+  ; Set to create the window initially hidden
+  ((flag-window-hidden      config-flag/flag-window-hidden)      FLAG_WINDOW_HIDDEN)
+  ; Set to try enabling MSAA 4X
+  ((flag-msaa-4x-hint       config-flag/flag-msaa-4x-hint)       FLAG_MSAA_4X_HINT)
+  ; Set to try enabling V-Sync on GPU
+  ((flag-vsync-hint         config-flag/flag-vsync-hint)         FLAG_VSYNC_HINT))
+
 (define-foreign-enum-type (keyboard-keys int)
   (keyboard-keys->int int->keyboard-keys)
   ((key-apostrophe keyboard-keys/key-apostrophe) KEY_APOSTROPHE)

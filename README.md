@@ -115,5 +115,8 @@ See `examples` directory.
 
 ### shaders
 
+#### postprocessing
+[![postprocessing](https://github.com/yashrk/raylib-scm/blob/master/examples/shaders/postprocessing/postprocessing.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/shaders/postprocessing)
+
 #### raymarching
 [![raymarching](https://github.com/yashrk/raylib-scm/blob/master/examples/shaders/raymarching/raymarching.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/shaders/raymarching)
