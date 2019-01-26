@@ -29,6 +29,7 @@ Chiken Scheme bindings for Raylib Game Library (https://www.raylib.com/, https:/
        * [skybox](#skybox)
        * [yaw pitch roll](#yaw-pitch-roll)
     * [shaders](#shaders)
+       * [postprocessing](#postprocessing)
        * [raymarching](#raymarching)
 
 ## DISCLAIMER
