@@ -28,6 +28,8 @@ Chiken Scheme bindings for Raylib Game Library (https://www.raylib.com/, https:/
        * [heightmap](#heightmap)
        * [skybox](#skybox)
        * [yaw pitch roll](#yaw-pitch-roll)
+    * [shaders](#shaders)
+       * [raymarching](#raymarching)
 
 ## DISCLAIMER
 
@@ -110,3 +112,7 @@ See `examples` directory.
 
 #### yaw pitch roll
 [![yaw pitch roll](https://github.com/yashrk/raylib-scm/blob/master/examples/models/yaw_pitch_roll/yaw_pitch_roll.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/models/yaw_pitch_roll/)
+
+### shaders
+
+[![raymarching](https://github.com/yashrk/raylib-scm/blob/master/examples/shaders/raymarching/raymarching.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/shaders/raymarching)

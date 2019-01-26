@@ -142,29 +142,29 @@
 
 (define-foreign-enum-type (shader-uniform-data-type int)
   (shader-uniform-data-type->int int->shader-uniform-data-type)
-  ((shader-uniform-data-type/uniform-float uniform-float) UNIFORM_FLOAT)
-  ((shader-uniform-data-type/uniform-vec2 uniform-vec2) UNIFORM_VEC2)
-  ((shader-uniform-data-type/uniform-vec3 uniform-vec3) UNIFORM_VEC3)
-  ((shader-uniform-data-type/uniform-vec4 uniform-vec4) UNIFORM_VEC4)
-  ((shader-uniform-data-type/uniform-int uniform-int) UNIFORM_INT)
-  ((shader-uniform-data-type/uniform-ivec2 uniform-ivec2) UNIFORM_IVEC2)
-  ((shader-uniform-data-type/uniform-ivec3 uniform-ivec3) UNIFORM_IVEC3)
-  ((shader-uniform-data-type/uniform-ivec4 uniform-ivec4) UNIFORM_IVEC4)
-  ((shader-uniform-data-type/uniform-sampler2d uniform-sampler2d) UNIFORM_SAMPLER2D))
+  ((uniform-float shader-uniform-data-type/uniform-float) UNIFORM_FLOAT)
+  ((uniform-vec2 shader-uniform-data-type/uniform-vec2) UNIFORM_VEC2)
+  ((uniform-vec3 shader-uniform-data-type/uniform-vec3) UNIFORM_VEC3)
+  ((uniform-vec4 shader-uniform-data-type/uniform-vec4) UNIFORM_VEC4)
+  ((uniform-int shader-uniform-data-type/uniform-int) UNIFORM_INT)
+  ((uniform-ivec2 shader-uniform-data-type/uniform-ivec2) UNIFORM_IVEC2)
+  ((uniform-ivec3 shader-uniform-data-type/uniform-ivec3) UNIFORM_IVEC3)
+  ((uniform-ivec4 shader-uniform-data-type/uniform-ivec4) UNIFORM_IVEC4)
+  ((uniform-sampler2d shader-uniform-data-type/uniform-sampler2d) UNIFORM_SAMPLER2D))
 
 (define-foreign-enum-type (texmap-index int)
   (texmap-index->int int->texmap-index)
-  ((texmap-index/map-albedo map-albedo) MAP_ALBEDO)             ; MAP_DIFFUSE
-  ((texmap-index/map-metalness map-metalness) MAP_METALNESS)    ; MAP_SPECULAR
-  ((texmap-index/map-normal map-normal) MAP_NORMAL)
-  ((texmap-index/map-roughness map-roughness) MAP_ROUGHNESS)
-  ((texmap-index/map-occlusion map-occlusion) MAP_OCCLUSION)
-  ((texmap-index/map-emission map-emission) MAP_EMISSION)
-  ((texmap-index/map-height map-height) MAP_HEIGHT)
-  ((texmap-index/map-cubemap map-cubemap) MAP_CUBEMAP)          ; NOTE: Uses GL_TEXTURE_CUBE_MAP
-  ((texmap-index/map-irradiance map-irradiance) MAP_IRRADIANCE) ; NOTE: Uses GL_TEXTURE_CUBE_MAP
-  ((texmap-index/map-prefilter map-prefilter) MAP_PREFILTER)    ; NOTE: Uses GL_TEXTURE_CUBE_MAP
-  ((texmap-index/map-brdf map-brdf) MAP_BRDF))
+  ((map-albedo texmap-index/map-albedo) MAP_ALBEDO)             ; MAP_DIFFUSE
+  ((map-metalness texmap-index/map-metalness) MAP_METALNESS)    ; MAP_SPECULAR
+  ((map-normal texmap-index/map-normal) MAP_NORMAL)
+  ((map-roughness texmap-index/map-roughness) MAP_ROUGHNESS)
+  ((map-occlusion texmap-index/map-occlusion) MAP_OCCLUSION)
+  ((map-emission texmap-index/map-emission) MAP_EMISSION)
+  ((map-height texmap-index/map-height) MAP_HEIGHT)
+  ((map-cubemap texmap-index/map-cubemap) MAP_CUBEMAP)          ; NOTE: Uses GL_TEXTURE_CUBE_MAP
+  ((map-irradiance texmap-index/map-irradiance) MAP_IRRADIANCE) ; NOTE: Uses GL_TEXTURE_CUBE_MAP
+  ((map-prefilter texmap-index/map-prefilter) MAP_PREFILTER)    ; NOTE: Uses GL_TEXTURE_CUBE_MAP
+  ((map-brdf texmap-index/map-brdf) MAP_BRDF))
 
 (define map-diffuse  map-albedo)
 (define map-specular map-metalness)

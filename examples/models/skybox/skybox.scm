@@ -32,13 +32,13 @@
   (set-shader-value! material-shader
                      (get-shader-location material-shader "environmentMap")
                      (allocate-int map-cubemap)
-                     uniform-int)
+                     shader-uniform-data-type/uniform-int)
 
   ; Load cubemap shader and setup required shader locations
   (set-shader-value! cubemap-shader
                      (get-shader-location cubemap-shader "equirectangularMap")
                      (allocate-int 0)
-                     uniform-int)
+                     shader-uniform-data-type/uniform-int)
 
   ; Generate cubemap (texture with 6 quads-cube-mapping) from panorama HDR texture
   ; NOTE: New texture is generated rendering to texture, shader computes the sphre->cube coordinates mapping

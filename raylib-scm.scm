@@ -68,7 +68,7 @@
 
      set-target-fps                                        ; Set target FPS (maximum)
      ;; get-fps                                               ; Returns current FPS
-     ;; get-frame-time                                        ; Returns time in seconds for last frame drawn
+     get-frame-time                                        ; Returns time in seconds for last frame drawn
      ;; get-time                                              ; Returns elapsed time in seconds since InitWindow()
 
      ;; Color-related functions
@@ -467,8 +467,8 @@
 
      ;; Shading begin/end functions
 
-     ;; begin-shader-mode                                     ; Begin custom shader drawing
-     ;; end-shader-mode                                       ; End custom shader drawing (use default shader)
+     begin-shader-mode                                     ; Begin custom shader drawing
+     end-shader-mode                                       ; End custom shader drawing (use default shader)
      begin-blend-mode                                      ; Begin blending mode (alpha, additive, multiplied)
      end-blend-mode                                        ; End blending mode (reset to default: alpha blending)
      ;; begin-scissor-mode                                    ; Begin scissor mode (define screen area for following drawing)
@@ -559,6 +559,11 @@
 
      bounding-box-max
      bounding-box-min
+     camera-position
+     camera-target
+     camera-up
+     camera-fovy
+     camera-type
      color-r
      color-g
      color-b
@@ -592,6 +597,7 @@
 
      ;; Utilities
 
+     allocate-float
      allocate-int
      deg->rad
      rad->deg
@@ -688,6 +694,9 @@
 
   (define set-target-fps
     (foreign-lambda void "SetTargetFPS" int))
+
+  (define get-frame-time
+    (foreign-lambda float "GetFrameTime"))
 
   ;; Color-related functions
 
@@ -1081,7 +1090,15 @@
 
   ;; Shading begin/end functions
 
-  (define begin-blend-mode
+  (define (begin-shader-mode shader)
+    ((foreign-lambda* void (((c-pointer (struct Shader)) shader))
+      "BeginShaderMode(*shader);")
+    shader))
+
+  (define end-shader-mode
+    (foreign-lambda void "EndShaderMode"))
+
+(define begin-blend-mode
     (foreign-lambda void "BeginBlendMode" int))
 
   (define end-blend-mode
@@ -1170,6 +1187,46 @@
         C_return(vector);")))
       (set-finalizer! new-vector free)
       new-vector))
+
+  (define (camera-position target-camera)
+    (let ((position
+           ((foreign-lambda* vector-3 (((c-pointer (struct Camera)) targetCamera))
+              "Vector3* vector = (Vector3*)malloc(sizeof(Vector3));
+               *vector = targetCamera->position;
+               C_return(vector);")
+            target-camera)))
+      (set-finalizer! position free)
+      position))
+
+  (define (camera-target target-camera)
+    (let ((target
+           ((foreign-lambda* vector-3 (((c-pointer (struct Camera)) targetCamera))
+              "Vector3* vector = (Vector3*)malloc(sizeof(Vector3));
+               *vector = targetCamera->target;
+               C_return(vector);")
+            target-camera)))
+      (set-finalizer! target free)
+      target))
+
+  (define (camera-up target-camera)
+    (let ((up
+           ((foreign-lambda* vector-3 (((c-pointer (struct Camera)) targetCamera))
+              "Vector3* vector = (Vector3*)malloc(sizeof(Vector3));
+               *vector = targetCamera->up;
+               C_return(vector);")
+            target-camera)))
+      (set-finalizer! up free)
+      up))
+
+  (define (camera-fovy target-camera)
+    ((foreign-lambda* float (((c-pointer (struct Camera)) targetCamera))
+       "C_return(targetCamera->fovy);")
+     target-camera))
+
+  (define (camera-type target-camera)
+    ((foreign-lambda* int (((c-pointer (struct Camera)) targetCamera))
+       "C_return(targetCamera->type);")
+     target-camera))
 
   (define (color-r target-color)
     ((foreign-lambda* unsigned-short (((c-pointer (struct Color)) color))
@@ -1414,6 +1471,16 @@
      vector))
 
   ;; Utilities
+
+  (define (allocate-float number)
+    (let ((new-pointer
+           ((foreign-lambda* (c-pointer float) ((float number))
+              "float* newPointer = (float*)malloc(sizeof(float));
+               *newPointer = number;
+               C_return(newPointer);")
+            number)))
+      (set-finalizer! new-pointer free)
+      new-pointer))
 
   (define (allocate-int number)
     (let ((new-pointer
