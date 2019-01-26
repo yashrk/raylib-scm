@@ -166,8 +166,8 @@
   ((map-prefilter texmap-index/map-prefilter) MAP_PREFILTER)    ; NOTE: Uses GL_TEXTURE_CUBE_MAP
   ((map-brdf texmap-index/map-brdf) MAP_BRDF))
 
-(define map-diffuse  map-albedo)
-(define map-specular map-metalness)
+(define texmap-index/map-diffuse  texmap-index/map-albedo)
+(define texmap-index/map-specular texmap-index/map-metalness)
 
 (define-foreign-enum-type (trace-log-type unsigned-short)
   (trace-log-type->unsigned-short unsigned-short->trace-log-type)
