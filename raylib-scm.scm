@@ -549,11 +549,15 @@
 
      ;; raymath
 
+     make-matrix
      matrix-identity
      matrix-multiply
+     matrix-rotate
      matrix-rotate-x
      matrix-rotate-y
      matrix-rotate-z
+     vector-3-add
+     vector-3-transform
 
      ;; Data structure helper functions
 
@@ -1123,6 +1127,37 @@
 
   ;; raymath
 
+  (define (make-matrix m0 m4 m8  m12
+                       m1 m5 m9  m13
+                       m2 m6 m10 m14
+                       m3 m7 m11 m15)
+    ((foreign-lambda* matrix ((float m0) (float m4) (float m8)  (float m12)
+                              (float m1) (float m5) (float m9)  (float m13)
+                              (float m2) (float m6) (float m10) (float m14)
+                              (float m3) (float m7) (float m11) (float m15))
+       "Matrix* matrix = (Matrix*)malloc(sizeof(Matrix));
+        matrix->m0  = m0;
+        matrix->m4  = m4;
+        matrix->m8  = m8;
+        matrix->m12 = m12;
+        matrix->m1  = m1;
+        matrix->m5  = m5;
+        matrix->m9  = m9;
+        matrix->m13 = m13;
+        matrix->m2  = m2;
+        matrix->m6  = m6;
+        matrix->m10 = m10;
+        matrix->m14 = m14;
+        matrix->m3  = m3;
+        matrix->m7  = m7;
+        matrix->m11 = m11;
+        matrix->m15 = m15;
+        C_return(matrix);")
+     m0 m4 m8  m12
+     m1 m5 m9  m13
+     m2 m6 m10 m14
+     m3 m7 m11 m15))
+
   (define (matrix-identity)
     (let ((matrix-result
            ((foreign-lambda* matrix ()
@@ -1140,6 +1175,17 @@
                *result = MatrixMultiply(*left, *right);
                C_return(result);")
             left right)))
+      (set-finalizer! matrix-result free)
+      matrix-result))
+
+  (define (matrix-rotate axis rad-angle)
+    (let ((matrix-result
+           ((foreign-lambda* matrix (((c-pointer (struct Vector3)) axis)
+                                     (float angle))
+              "Matrix* result = (Matrix*)malloc(sizeof(Matrix));
+               *result = MatrixRotate(*axis, angle);
+               C_return(result);")
+            axis rad-angle)))
       (set-finalizer! matrix-result free)
       matrix-result))
 
@@ -1172,6 +1218,28 @@
             rad-angle)))
       (set-finalizer! matrix-result free)
       matrix-result))
+
+  (define (vector-3-add vector-1 vector-2)
+    (let ((summ
+           ((foreign-lambda* vector-3 (((c-pointer (struct Vector3)) vector1)
+                                       ((c-pointer (struct Vector3)) vector2))
+              "Vector3* result = (Vector3*)malloc(sizeof(Vector3));
+               *result = Vector3Add(*vector1, *vector2);
+               C_return(result);")
+            vector-1 vector-2)))
+      (set-finalizer! summ free)
+      summ))
+
+  (define (vector-3-transform vector-to-transform transform-matrix)
+    (let ((transformed-vector
+           ((foreign-lambda* vector-3 (((c-pointer (struct Vector3)) vector)
+                                       ((c-pointer (struct Matrix)) matrix))
+              "Vector3* result = (Vector3*)malloc(sizeof(Vector3));
+               *result = Vector3Transform(*vector, *matrix);
+               C_return(result);")
+            vector-to-transform transform-matrix)))
+      (set-finalizer! transformed-vector free)
+      transformed-vector))
 
   ;; Data structure helper functions
 
