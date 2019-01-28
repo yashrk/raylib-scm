@@ -31,7 +31,7 @@
   (set-material-shader! skybox material-shader)
   (set-shader-value! material-shader
                      (get-shader-location material-shader "environmentMap")
-                     (allocate-int map-cubemap)
+                     (allocate-int texmap-index/map-cubemap)
                      shader-uniform-data-type/uniform-int)
 
   ; Load cubemap shader and setup required shader locations
@@ -40,35 +40,35 @@
                      (allocate-int 0)
                      shader-uniform-data-type/uniform-int)
 
-  ; Generate cubemap (texture with 6 quads-cube-mapping) from panorama HDR texture
-  ; NOTE: New texture is generated rendering to texture, shader computes the sphre->cube coordinates mapping
-  (set-cubemap-texture skybox (gen-texture-cubemap cubemap-shader tex-hdr 512))
+  (let (; Generate cubemap (texture with 6 quads-cube-mapping) from panorama HDR texture
+        ; NOTE: New texture is generated rendering to texture, shader computes the sphre->cube coordinates mapping
+        (skybox (set-cubemap-texture skybox (gen-texture-cubemap cubemap-shader tex-hdr 512))))
 
-  ; Texture not required anymore, cubemap already generated
-  (unload-texture tex-hdr)
-  ; Unload cubemap generation shader, not required anymore
-  (unload-shader cubemap-shader)
+    ; Texture not required anymore, cubemap already generated
+    (unload-texture tex-hdr)
+    ; Unload cubemap generation shader, not required anymore
+    (unload-shader cubemap-shader)
 
-  ; Set a first person camera mode
-  (set-camera-mode fp-camera camera-mode/camera-first-person)
+    ; Set a first person camera mode
+    (set-camera-mode fp-camera camera-mode/camera-first-person)
 
-  (define (main-loop)
-    (update-camera fp-camera)
-    (if (not (window-should-close?))
-        (begin
-          (begin-drawing)
-          (clear-background RAYWHITE)
-          (begin-mode-3d fp-camera)
-          (draw-model skybox
-                      (make-vector-3 0.0 0.0 0.0)
-                      1.0
-                      WHITE)
-          (draw-grid 10 10.0)
-          (end-mode-3d)
-          (draw-fps 10 10)
-          (end-drawing)
-          (main-loop))
-        (begin
-          (unload-model skybox)
-          (close-window))))
-  (main-loop))
+    (define (main-loop)
+      (update-camera fp-camera)
+      (if (not (window-should-close?))
+          (begin
+            (begin-drawing)
+            (clear-background RAYWHITE)
+            (begin-mode-3d fp-camera)
+            (draw-model skybox
+                        (make-vector-3 0.0 0.0 0.0)
+                        1.0
+                        WHITE)
+            (draw-grid 10 10.0)
+            (end-mode-3d)
+            (draw-fps 10 10)
+            (end-drawing)
+            (main-loop))
+          (begin
+            (unload-model skybox)
+            (close-window))))
+    (main-loop)))

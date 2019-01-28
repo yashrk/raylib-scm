@@ -109,7 +109,7 @@ See `examples` directory.
 [![heightmap](https://github.com/yashrk/raylib-scm/blob/master/examples/models/heightmap/heightmap.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/models/heightmap/)
 
 #### skybox
-[skybox](https://github.com/yashrk/raylib-scm/tree/master/examples/models/skybox/)
+[![skybox](https://github.com/yashrk/raylib-scm/blob/master/examples/models/skybox/skybox.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/models/skybox/)
 
 #### yaw pitch roll
 [![yaw pitch roll](https://github.com/yashrk/raylib-scm/blob/master/examples/models/yaw_pitch_roll/yaw_pitch_roll.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/models/yaw_pitch_roll/)
