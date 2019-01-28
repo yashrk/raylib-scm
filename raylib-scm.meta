@@ -1,6 +1,6 @@
 ((components (extension raylib-scm))
  (version 0.0)
  (license "AGPL")
- (dependencies foreign foreigners lolevel)
+ (depends foreign foreigners lolevel)
  (author "Yuriy Al. Shirokov <yuriy.shirokov@gmail.com>")
  (synopsis "Raylib (https://www.raylib.com/) game library bindings."))
