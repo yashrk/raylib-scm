@@ -551,12 +551,16 @@
 
      make-matrix
      matrix-identity
+     matrix-invert
      matrix-multiply
      matrix-rotate
      matrix-rotate-x
      matrix-rotate-y
      matrix-rotate-z
      vector-3-add
+     vector-3-negate
+     vector-3-scale
+     vector-3-substract
      vector-3-transform
 
      ;; Data structure helper functions
@@ -581,6 +585,9 @@
      make-render-texture-2d
      make-vector-2
      make-vector-3
+     model-mesh
+     model-transform
+     model-material
      rectangle-x
      rectangle-y
      rectangle-width
@@ -1167,6 +1174,16 @@
       (set-finalizer! matrix-result free)
       matrix-result))
 
+  (define (matrix-invert target-matrix)
+    (let ((matrix-result
+           ((foreign-lambda* matrix (((c-pointer (struct Matrix)) targetMatrix))
+              "Matrix* result = (Matrix*)malloc(sizeof(Matrix));
+               *result = MatrixInvert(*targetMatrix);
+               C_return(result);")
+            target-matrix)))
+      (set-finalizer! matrix-result free)
+      matrix-result))
+
   (define (matrix-multiply left right)
     (let ((matrix-result
            ((foreign-lambda* matrix (((c-pointer (struct Matrix)) left)
@@ -1225,6 +1242,38 @@
                                        ((c-pointer (struct Vector3)) vector2))
               "Vector3* result = (Vector3*)malloc(sizeof(Vector3));
                *result = Vector3Add(*vector1, *vector2);
+               C_return(result);")
+            vector-1 vector-2)))
+      (set-finalizer! summ free)
+      summ))
+
+  (define (vector-3-negate target-vector)
+    (let ((negated
+           ((foreign-lambda* vector-3 (((c-pointer (struct Vector3)) vector))
+              "Vector3* result = (Vector3*)malloc(sizeof(Vector3));
+               *result = Vector3Negate(*vector);
+               C_return(result);")
+            target-vector)))
+      (set-finalizer! negated free)
+      negated))
+
+  (define (vector-3-scale target-vector scale)
+    (let ((scaled
+           ((foreign-lambda* vector-3 (((c-pointer (struct Vector3)) vector)
+                                       (float scale))
+              "Vector3* result = (Vector3*)malloc(sizeof(Vector3));
+               *result = Vector3Scale(*vector, scale);
+               C_return(result);")
+            target-vector scale)))
+      (set-finalizer! scaled free)
+      scaled))
+
+  (define (vector-3-substract vector-1 vector-2)
+    (let ((summ
+           ((foreign-lambda* vector-3 (((c-pointer (struct Vector3)) vector1)
+                                       ((c-pointer (struct Vector3)) vector2))
+              "Vector3* result = (Vector3*)malloc(sizeof(Vector3));
+               *result = Vector3Subtract(*vector1, *vector2);
                C_return(result);")
             vector-1 vector-2)))
       (set-finalizer! summ free)
@@ -1435,6 +1484,36 @@
             x y z)))
       (set-finalizer! new-vector free)
       new-vector))
+
+  (define (model-mesh target-model)
+    (let ((new-mesh
+           ((foreign-lambda* mesh (((c-pointer (struct Model)) model))
+              "Mesh* mesh = (Mesh*)malloc(sizeof(Mesh));
+               *mesh = model->mesh;
+               C_return(mesh);")
+            target-model)))
+      (set-finalizer! new-mesh free)
+      new-mesh))
+
+  (define (model-transform target-model)
+    (let ((new-matrix
+           ((foreign-lambda* matrix (((c-pointer (struct Model)) model))
+              "Matrix* matrix = (Matrix*)malloc(sizeof(Matrix));
+               *matrix = model->transform;
+               C_return(matrix);")
+            target-model)))
+      (set-finalizer! new-matrix free)
+      new-matrix))
+
+  (define (model-material target-model)
+    (let ((new-material
+           ((foreign-lambda* material (((c-pointer (struct Model)) model))
+              "Material* material = (Material*)malloc(sizeof(Material));
+               *material = model->material;
+               C_return(material);")
+            target-model)))
+      (set-finalizer! new-material free)
+      new-material))
 
   (define (rectangle-x rec)
     ((foreign-lambda* float (((c-pointer (struct Rectangle)) rec))
