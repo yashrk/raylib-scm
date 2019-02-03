@@ -24,6 +24,7 @@ Chiken Scheme bindings for Raylib Game Library (https://www.raylib.com/, https:/
     * [textures](#textures)
        * [particles blending](#particles-blending)
     * [models](#models)
+       * [box collisions](#box-collisions)
        * [obj loading](#obj-loading)
        * [heightmap](#heightmap)
        * [skybox](#skybox)
