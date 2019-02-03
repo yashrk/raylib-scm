@@ -358,12 +358,12 @@
      ;; draw-line-3d                                          ; Draw a line in 3D world space
      ;; draw-circle-3d                                        ; Draw a circle in 3D world space
      draw-cube                                             ; Draw cube
-     ;; draw-cube-v                                           ; Draw cube (Vector version)
+     draw-cube-v                                           ; Draw cube (Vector version)
      draw-cube-wires                                       ; Draw cube wires
      ;; draw-cube-texture                                     ; Draw cube textured
-     ;; draw-sphere                                           ; Draw sphere
+     draw-sphere                                           ; Draw sphere
      ;; draw-sphere-ex                                        ; Draw sphere with extended parameters
-     ;; draw-sphere-wires                                     ; Draw sphere wires
+     draw-sphere-wires                                     ; Draw sphere wires
      ;; draw-cylinder                                         ; Draw a cylinder/cone
      ;; draw-cylinder-wires                                   ; Draw a cylinder/cone wires
      draw-plane                                            ; Draw a plane XZ
@@ -424,8 +424,8 @@
      ;; Collision detection functions
 
      ;; check-collision-spheres                               ; Detect collision between two spheres
-     ;; check-collision-boxes                                 ; Detect collision between two bounding boxes
-     ;; check-collision-box-sphere                            ; Detect collision between box and sphere
+     check-collision-boxes                                 ; Detect collision between two bounding boxes
+     check-collision-box-sphere                            ; Detect collision between box and sphere
      ;; check-collision-ray-sphere                            ; Detect collision between ray and sphere
      ;; check-collision-ray-sphere-ex                         ; Detect collision between ray and sphere, returns collision point
      check-collision-ray-box                               ; Detect collision between ray and box
@@ -945,6 +945,13 @@
        "DrawCube(*position, width, height, length, *color);")
      position width height length color))
 
+  (define (draw-cube-v position size color)
+    ((foreign-lambda* void (((c-pointer (struct Vector3)) position)
+                            ((c-pointer (struct Vector3)) size)
+                            ((c-pointer (struct Color)) color))
+       "DrawCubeV(*position, *size, *color);")
+     position size color))
+
   (define (draw-cube-wires position width height length color)
     ((foreign-lambda* void (((c-pointer (struct Vector3)) position)
                             (float width)
@@ -953,6 +960,22 @@
                             ((c-pointer (struct Color)) color))
        "DrawCubeWires(*position, width, height, length, *color);")
      position width height length color))
+
+  (define (draw-sphere center-pos radius sphere-color)
+    ((foreign-lambda* void (((c-pointer (struct Vector3)) centerPos)
+                            (float radius)
+                            ((c-pointer (struct Color)) color))
+       "DrawSphere(*centerPos, radius, *color);")
+     center-pos radius sphere-color))
+
+  (define (draw-sphere-wires center-pos radius rings slices sphere-color)
+    ((foreign-lambda* void (((c-pointer (struct Vector3)) centerPos)
+                            (float radius)
+                            (int rings)
+                            (int slices)
+                            ((c-pointer (struct Color)) color))
+       "DrawSphereWires(*centerPos, radius, rings, slices, *color);")
+     center-pos radius rings slices sphere-color))
 
   (define (draw-plane center-pos size color)
     ((foreign-lambda* void (((c-pointer (struct Vector3)) centerPos)
@@ -1043,6 +1066,21 @@
      camera texture center size tint))
 
   ;; Collision detection functions
+
+  (define (check-collision-boxes box-1 box-2)
+    (not (= ((foreign-lambda* int (((c-pointer (struct BoundingBox)) box1)
+                                   ((c-pointer (struct BoundingBox)) box2))
+               "C_return(CheckCollisionBoxes(*box1, *box2));")
+             box-1 box-2)
+            0)))
+
+  (define (check-collision-box-sphere target-box sphere-center sphere-radius)
+    (not (= ((foreign-lambda* int (((c-pointer (struct BoundingBox)) box)
+                                   ((c-pointer (struct Vector3)) centerSphere)
+                                   (float radiusSphere))
+               "C_return(CheckCollisionBoxSphere(*box, *centerSphere, radiusSphere));")
+             target-box sphere-center sphere-radius)
+            0)))
 
   (define (check-collision-ray-box target-ray target-box)
     (not (= ((foreign-lambda* int (((c-pointer (struct Ray)) ray)

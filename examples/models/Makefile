@@ -1,9 +1,11 @@
 all:
+	+$(MAKE) -C box_collisions
 	+$(MAKE) -C heightmap
 	+$(MAKE) -C obj_loading
 	+$(MAKE) -C skybox
 	+$(MAKE) -C yaw_pitch_roll
 clean:
+	+$(MAKE) clean -C box_collisions
 	+$(MAKE) clean -C heightmap
 	+$(MAKE) clean -C obj_loading
 	+$(MAKE) clean -C skybox

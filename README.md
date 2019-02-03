@@ -60,8 +60,15 @@ See `examples` directory.
  - [ ] Allocate C objects in memory managed by Chicken: it's probably much more efficient than `malloc()`
  - [ ] Make API and deployment files more idiomatic for Chicken Scheme.
  - [ ] Write something funny and/or useful using this bindings.
+ 
+ ## Contacts
+ 
+ - https://yashrk.github.io/index-en.html
+ - Raylib's discord: https://discord.gg/raylib, see #raylib-scm channel
 
 ## Examples already implemented
+
+Click to screenshot to see source code of the respective example.
 
 ### core
 
@@ -101,6 +108,9 @@ See `examples` directory.
 [![particles blending](https://github.com/yashrk/raylib-scm/blob/master/examples/textures/particles_blending/particles_blending.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/textures/particles_blending/)
 
 ### models
+
+#### box collisions
+[![box collisions](https://github.com/yashrk/raylib-scm/blob/master/examples/models/box_collisions/box_collisions.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/models/box_collisions/)
 
 #### obj loading
 [![obj loading](https://github.com/yashrk/raylib-scm/blob/master/examples/models/obj_loading/obj_loading.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/models/obj_loading/)
