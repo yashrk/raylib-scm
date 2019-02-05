@@ -84,8 +84,8 @@
      ;; Misc. functions
 
      set-config-flags                                      ; Setup window configuration flags (view FLAGS)
-     set-trace-log                                         ; Enable trace log message types
-                                                           ; (bit flags based)
+     set-trace-log-level                                   ; Set the current threshold (minimum)
+                                                           ; log level
      ;; set-trace-log-callback                                ; Set a trace log callback to enable custom logging bypassing raylib's one
      ;; trace-log                                             ; Show trace log messages (LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_DEBUG)
      ;; take-screenshot                                       ; Takes a screenshot of current screen (saved a .png)
@@ -726,8 +726,8 @@
   (define set-config-flags
     (foreign-lambda void "SetConfigFlags" unsigned-short))
 
-  (define set-trace-log
-    (foreign-lambda void "SetTraceLog" unsigned-short))
+  (define set-trace-log-level
+    (foreign-lambda void "SetTraceLogLevel" unsigned-short))
 
   (define get-random-value
     (foreign-lambda int "GetRandomValue" int int))

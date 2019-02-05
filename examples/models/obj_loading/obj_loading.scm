@@ -7,11 +7,7 @@
 
 (init-window screen-width screen-height "raylib [models] example - obj model loading")
 
-(set-trace-log (bitwise-ior trace-log-type/log-info
-                            trace-log-type/log-warning
-                            trace-log-type/log-error
-                            trace-log-type/log-debug
-                            trace-log-type/log-other))
+(set-trace-log-level trace-log-type/log-debug)
 
 (let* ((cur-camera (make-camera (make-vector-3 8.0 8.0 8.0)
                                 (make-vector-3 0.0 2.5 0.0)

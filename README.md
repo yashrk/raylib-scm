@@ -9,6 +9,8 @@ Chiken Scheme bindings for Raylib Game Library (https://www.raylib.com/, https:/
  * [Installation](#installation)
  * [Usage](#usage)
  * [ToDo](#todo)
+ * [Current Raylib version](#current-raylib-version)
+ * [Contacts](#contacts)
  * [Examples already implemented](#examples-already-implemented)
     * [core](#core)
        * [basic window](#basic-window)
@@ -62,7 +64,11 @@ See `examples` directory.
  - [ ] Make API and deployment files more idiomatic for Chicken Scheme.
  - [ ] Write something funny and/or useful using this bindings.
  
- ## Contacts
+## Current Raylib version
+
+Synchronized (well, kind of) with the commit [c2006428](https://github.com/raysan5/raylib/commit/c200642887a8a5a4fd38168aee224dc9fc9906ab).
+ 
+## Contacts
  
  - https://yashrk.github.io/index-en.html
  - Raylib's discord: https://discord.gg/raylib, see #raylib-scm channel

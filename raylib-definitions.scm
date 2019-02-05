@@ -190,11 +190,14 @@
 
 (define-foreign-enum-type (trace-log-type unsigned-short)
   (trace-log-type->unsigned-short unsigned-short->trace-log-type)
+  ((log-all     trace-log-type/log-all)     LOG_ALL)
+  ((log-trace   trace-log-type/log-trace)   LOG_TRACE)
+  ((log-debug   trace-log-type/log-debug)   LOG_DEBUG)
   ((log-info    trace-log-type/log-info)    LOG_INFO)
   ((log-warning trace-log-type/log-warning) LOG_WARNING)
   ((log-error   trace-log-type/log-error)   LOG_ERROR)
-  ((log-debug   trace-log-type/log-debug)   LOG_DEBUG)
-  ((log-other   trace-log-type/log-other)   LOG_OTHER))
+  ((log-fatal   trace-log-type/log-fatal)   LOG_FATAL)
+  ((log-none    trace-log-type/log-none)    LOG_NONE))
 
 (define-foreign-record-type (bounding-box BoundingBox))
 (define-foreign-record-type (camera Camera))
