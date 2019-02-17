@@ -489,25 +489,25 @@
      ;;; Audio Loading and Playing Functions (Module: audio)
 
      ;; Audio device management functions
-     ;; init-audio-device                                     ; Initialize audio device and context
-     ;; close-audio-device                                    ; Close the audio device and context
+     init-audio-device                                     ; Initialize audio device and context
+     close-audio-device                                    ; Close the audio device and context
      ;; is-audio-device-ready                                 ; Check if audio device has been initialized successfully
      ;; set-master-volume                                     ; Set master volume (listener)
 
      ;; Wave/Sound loading/unloading functions
      ;; load-wave                                             ; Load wave data from file
      ;; load-wave-ex                                          ; Load wave data from raw array data
-     ;; load-sound                                            ; Load sound from file
+     load-sound                                            ; Load sound from file
      ;; load-sound-from-wave                                  ; Load sound from wave data
      ;; update-sound                                          ; Update sound buffer with new data
      ;; unload-wave                                           ; Unload wave data
-     ;; unload-sound                                          ; Unload sound
+     unload-sound                                          ; Unload sound
      ;; export-wave                                           ; Export wave data to file
      ;; export-wave-as-code                                   ; Export wave sample data to code (.h)
 
      ;; Wave/Sound management functions
 
-     ;; play-sound                                            ; Play a sound
+     play-sound                                            ; Play a sound
      ;; pause-sound                                           ; Pause a sound
      ;; resume-sound                                          ; Resume a paused sound
      ;; stop-sound                                            ; Stop playing a sound
@@ -1150,7 +1150,7 @@
   (define end-shader-mode
     (foreign-lambda void "EndShaderMode"))
 
-(define begin-blend-mode
+  (define begin-blend-mode
     (foreign-lambda void "BeginBlendMode" int))
 
   (define end-blend-mode
@@ -1162,9 +1162,34 @@
 
   ;; Audio device management functions
 
+  (define init-audio-device
+    (foreign-lambda void "InitAudioDevice"))
+
+  (define close-audio-device
+    (foreign-lambda void "CloseAudioDevice"))
+
   ;; Wave/Sound loading/unloading functions
 
+  (define (load-sound file-name)
+    (let ((new-sound
+           ((foreign-lambda* sound ((c-string fileName))
+              "Sound* sound = (Sound*)malloc(sizeof(Sound));
+               *sound = LoadSound(fileName);
+               C_return(sound);")
+            file-name)))
+      (set-finalizer! new-sound free)
+      new-sound))
+
+  (define (unload-sound sound)
+    (foreign-lambda* void (((c-pointer (struct Sound)) sound))
+      "UnloadSound(*sound);"))
+
   ;; Wave/Sound management functions
+
+  (define (play-sound sound-to-play)
+    ((foreign-lambda* void (((c-pointer (struct Sound)) soundToPlay))
+       "PlaySound(*soundToPlay);")
+     sound-to-play))
 
   ;; Music management functions
 

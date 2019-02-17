@@ -212,6 +212,7 @@
 (define-foreign-record-type (rectangle Rectangle))
 (define-foreign-record-type (render-texture-2d RenderTexture2D))
 (define-foreign-record-type (shader Shader))
+(define-foreign-record-type (sound Sound))
 (define-foreign-record-type (texture-2d Texture2D))
 (define-foreign-record-type (vector-2 Vector2))
 (define-foreign-record-type (vector-3 Vector3))

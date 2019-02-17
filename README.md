@@ -34,6 +34,8 @@ Chiken Scheme bindings for Raylib Game Library (https://www.raylib.com/, https:/
     * [shaders](#shaders)
        * [postprocessing](#postprocessing)
        * [raymarching](#raymarching)
+    * [audio](#audio)
+       * [sound loading](#sound-loading)
 
 ## DISCLAIMER
 
@@ -66,7 +68,7 @@ See `examples` directory.
  
 ## Current Raylib version
 
-Synchronized (well, kind of) with the commit [c2006428](https://github.com/raysan5/raylib/commit/c200642887a8a5a4fd38168aee224dc9fc9906ab).
+Synchronized (well, kind of) with the commit [8a21830b](https://github.com/raysan5/raylib/commit/8a21830b77eaa76ffe0c31df5f96aecd6bd2eecc).
  
 ## Contacts
  
@@ -138,3 +140,8 @@ Click to screenshot to see source code of the respective example.
 
 #### raymarching
 [![raymarching](https://github.com/yashrk/raylib-scm/blob/master/examples/shaders/raymarching/raymarching.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/shaders/raymarching)
+
+### audio
+
+#### sound loading
+[![sound loading](https://github.com/yashrk/raylib-scm/blob/master/examples/audio/sound_loading/sound_loading.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/audio/sound_loading)
