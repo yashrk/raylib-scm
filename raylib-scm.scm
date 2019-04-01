@@ -646,6 +646,10 @@
 
   ;;; Macros to define foreign functions
 
+  ; Converts signatures like
+  ; ((c-pointer (struct StructType)) structName) to "*structName"
+  ; Converts signatures like
+  ; (int name) or ((c-pointer void) name) to "name"
   (define-for-syntax (get-argument signature)
     (let ((name (symbol->string (cadr signature))))
       (if (and (list? (car signature))
@@ -653,23 +657,41 @@
           (string-append "*" name)
           name)))
 
-  (define-syntax foreign-define-with-struct
+  ; Creates foreign-lambda for C function with struct arguments passed by value.
+  ; Arguments:
+  ; - name of C function;
+  ; - return type
+  ; - argument list in standard Chicken FFI format
+  (define-syntax foreign-lambda-with-struct
     (er-macro-transformer
      (lambda (exp rename compare)
-       (let* ((args (drop exp 4))
-              (function-name (list-ref exp 1))
-              (foreign-function-name (list-ref exp 2))
-              (return-type (list-ref exp 3))
-              (names (map cadr (car args)))
+       (let* ((args (drop exp 3))
+              (foreign-function-name (list-ref exp 1))
+              (return-type (list-ref exp 2))
               (c-names (map get-argument (car args)))
               (c-names (string-join c-names ", "))
               (c-function (string-join (list foreign-function-name "(" c-names ")") ""))
               (c-call (if (eq? return-type 'void)
                           (string-join (list c-function ";") "")
                           (string-join (list "C_return(" c-function ");") ""))))
+         `(foreign-lambda* ,return-type ,@args
+            ,c-call)))))
+
+  ; Creates named Scheme function for C function with struct arguments passed by value.
+  ; Arguments:
+  ; - Scheme function name
+  ; - name of C function;
+  ; - return type
+  ; - argument list in standard Chicken FFI format
+  (define-syntax foreign-define-with-struct
+    (er-macro-transformer
+     (lambda (exp rename compare)
+       (let* ((to-lambda (drop exp 2))
+              (args (drop exp 4))
+              (function-name (list-ref exp 1))
+              (names (map cadr (car args))))
          `(define (,function-name ,@names)
-            ((foreign-lambda* ,return-type ,@args
-               ,c-call)
+            ((foreign-lambda-with-struct ,@to-lambda)
              ,@names))))))
 
   ;;; Window and Graphics Device Functions (Module: core)
