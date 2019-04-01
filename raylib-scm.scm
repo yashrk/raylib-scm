@@ -644,6 +644,34 @@
   (import chicken scheme foreign foreigners lolevel)
   (use foreigners lolevel)
 
+  ;;; Macros to define foreign functions
+
+  (define-for-syntax (get-argument signature)
+    (let ((name (symbol->string (cadr signature))))
+      (if (and (list? (car signature))
+               (list? (cadar signature)))
+          (string-append "*" name)
+          name)))
+
+  (define-syntax foreign-define-with-struct
+    (er-macro-transformer
+     (lambda (exp rename compare)
+       (let* ((args (drop exp 4))
+              (function-name (list-ref exp 1))
+              (foreign-function-name (list-ref exp 2))
+              (return-type (list-ref exp 3))
+              (names (map cadr (car args)))
+              (c-names (map get-argument (car args)))
+              (c-names (string-join c-names ", "))
+              (c-function (string-join (list foreign-function-name "(" c-names ")") ""))
+              (c-call (if (eq? return-type 'void)
+                          (string-join (list c-function ";") "")
+                          (string-join (list "C_return(" c-function ");") ""))))
+         `(define (,function-name ,@names)
+            ((foreign-lambda* ,return-type ,@args
+               ,c-call)
+             ,@names))))))
+
   ;;; Window and Graphics Device Functions (Module: core)
 
   ;; Window-related functions
@@ -661,10 +689,10 @@
 
   ;; Drawing-related functions
 
-  (define (clear-background color)
-    ((foreign-lambda* void (((c-pointer (struct Color)) color))
-       "ClearBackground(*color);")
-     color))
+  (foreign-define-with-struct clear-background
+                              "ClearBackground"
+                              void
+                              (((c-pointer (struct Color)) color)))
 
   (define begin-drawing
     (foreign-lambda void "BeginDrawing"))
@@ -672,18 +700,18 @@
   (define end-drawing
     (foreign-lambda void "EndDrawing"))
 
-  (define (begin-mode-3d cur-camera)
-    ((foreign-lambda* void (((c-pointer (struct Camera)) cameraP))
-       "BeginMode3D(*cameraP);")
-     cur-camera))
+  (foreign-define-with-struct begin-mode-3d
+                              "BeginMode3D"
+                              void
+                              (((c-pointer (struct Camera)) cameraP)))
 
   (define end-mode-3d
     (foreign-lambda void "EndMode3D"))
 
-  (define (begin-texture-mode target)
-    ((foreign-lambda* void (((c-pointer (struct RenderTexture2D)) target))
-       "BeginTextureMode(*target);")
-     target))
+  (foreign-define-with-struct begin-texture-mode
+                              "BeginTextureMode"
+                              void
+                              (((c-pointer (struct RenderTexture2D)) target)))
 
   (define end-texture-mode
     (foreign-lambda void "EndTextureMode"))
@@ -693,7 +721,7 @@
   (define (get-mouse-ray mouse-position cur-camera)
     (let ((new-ray
            ((foreign-lambda* ray (((c-pointer (struct Vector2)) mousePosition)
-                                       ((c-pointer (struct Camera)) camera))
+                                  ((c-pointer (struct Camera)) camera))
               "Ray* ray = (Ray*)malloc(sizeof(Ray));
                *ray = GetMouseRay(*mousePosition, *camera);
                C_return(ray);")
@@ -770,11 +798,11 @@
 
   ;;; Camera System Functions (Module: camera)
 
-  (define (set-camera-mode target-camera mode)
-    ((foreign-lambda* void (((c-pointer (struct Camera)) targetCamera)
-                            (int cameraMode))
-       "SetCameraMode(*targetCamera, cameraMode);")
-     target-camera mode))
+  (foreign-define-with-struct set-camera-mode
+                              "SetCameraMode"
+                              void
+                              (((c-pointer (struct Camera)) targetCamera)
+                               (int cameraMode)))
 
   (define update-camera
     (foreign-lambda void "UpdateCamera" camera))
@@ -782,36 +810,36 @@
 
   ;;; Basic Shapes Drawing Functions (Module: shapes)
 
-  (define (draw-circle-v center radius color)
-    ((foreign-lambda* void (((c-pointer (struct Vector2)) center)
-                            (float radius)
-                            ((c-pointer (struct Color)) color))
-       "DrawCircleV(*center, radius, *color);")
-     center radius color))
+  (foreign-define-with-struct draw-circle-v
+                              "DrawCircleV"
+                              void
+                              (((c-pointer (struct Vector2)) center)
+                               (float radius)
+                               ((c-pointer (struct Color)) color)))
 
-  (define (draw-rectangle pos-x pos-y width height color)
-    ((foreign-lambda* void ((int posX)
-                            (int posY)
-                            (int width)
-                            (int height)
-                            ((c-pointer (struct Color)) color))
-       "DrawRectangle(posX, posY, width, height, *color);")
-     pos-x pos-y width height color))
+  (foreign-define-with-struct draw-rectangle
+                              "DrawRectangle"
+                              void
+                              ((int posX)
+                               (int posY)
+                               (int width)
+                               (int height)
+                               ((c-pointer (struct Color)) color)))
 
-  (define (draw-rectangle-rec rec color)
-    ((foreign-lambda* void (((c-pointer (struct Rectangle)) rec)
-                            ((c-pointer (struct Color)) color))
-       "DrawRectangleRec(*rec, *color);")
-     rec color))
+  (foreign-define-with-struct draw-rectangle-rec
+                              "DrawRectangleRec"
+                              void
+                              (((c-pointer (struct Rectangle)) rec)
+                               ((c-pointer (struct Color)) color)))
 
-  (define (draw-rectangle-lines pos-x pos-y width height color)
-    ((foreign-lambda* void ((int posX)
-                            (int posY)
-                            (int width)
-                            (int height)
-                            ((c-pointer (struct Color)) color))
-       "DrawRectangleLines(posX, posY, width, height, *color);")
-     pos-x pos-y width height color))
+  (foreign-define-with-struct draw-rectangle-lines
+                              "DrawRectangleLines"
+                              void
+                              ((int posX)
+                               (int posY)
+                               (int width)
+                               (int height)
+                               ((c-pointer (struct Color)) color)))
 
   ;;; Basic shapes collision detection functions
 
@@ -865,20 +893,20 @@
       (set-finalizer! new-render-texture free)
       new-render-texture))
 
-  (define (unload-image image-to-unload)
-    ((foreign-lambda* void (((c-pointer (struct Image)) imageToUnload))
-       "UnloadImage(*imageToUnload);")
-    image-to-unload))
+  (foreign-define-with-struct unload-image
+                              "UnloadImage"
+                              void
+                              (((c-pointer (struct Image)) imageToUnload)))
 
-  (define (unload-texture texture-to-unload)
-    ((foreign-lambda* void (((c-pointer (struct Texture2D)) textureToUnload))
-       "UnloadTexture(*textureToUnload);")
-    texture-to-unload))
+  (foreign-define-with-struct unload-texture
+                              "UnloadTexture"
+                              void
+                              (((c-pointer (struct Texture2D)) textureToUnload)))
 
-  (define (unload-render-texture texture-to-unload)
-    ((foreign-lambda* void (((c-pointer (struct RenderTexture2D)) textureToUnload))
-       "UnloadRenderTexture(*textureToUnload);")
-     texture-to-unload))
+  (foreign-define-with-struct unload-render-texture
+                              "UnloadRenderTexture"
+                              void
+                              (((c-pointer (struct RenderTexture2D)) textureToUnload)))
 
   ;; Image manipulation functions
 
@@ -891,106 +919,106 @@
 
   ;; Texture2D drawing functions
 
-  (define (draw-texture texture pos-x pos-y tint)
-    ((foreign-lambda* void (((c-pointer (struct Texture2D)) texture)
-                            (int posX)
-                            (int posY)
-                            ((c-pointer (struct Color)) tint))
-       "DrawTexture(*texture, posX, posY, *tint);")
-     texture pos-x pos-y tint))
+  (foreign-define-with-struct draw-texture
+                              "DrawTexture"
+                              void
+                              (((c-pointer (struct Texture2D)) texture)
+                               (int posX)
+                               (int posY)
+                               ((c-pointer (struct Color)) tint)))
 
-  (define (draw-texture-rec texture source-rec position tint)
-    ((foreign-lambda* void (((c-pointer (struct Texture2D)) texture)
-                            ((c-pointer (struct Rectangle)) sourceRec)
-                            ((c-pointer (struct Vector2)) position)
-                            ((c-pointer (struct Color)) tint))
-       "DrawTextureRec(*texture, *sourceRec, *position, *tint);")
-     texture source-rec position tint))
+  (foreign-define-with-struct draw-texture-rec
+                              "DrawTextureRec"
+                              void
+                              (((c-pointer (struct Texture2D)) texture)
+                               ((c-pointer (struct Rectangle)) sourceRec)
+                               ((c-pointer (struct Vector2)) position)
+                               ((c-pointer (struct Color)) tint)))
 
-  (define (draw-texture-pro cur-texture surce-rec dest-rec origin rotation tint)
-    ((foreign-lambda* void (((c-pointer (struct Texture2D)) curTexture)
-                            ((c-pointer (struct Rectangle)) sourceRec)
-                            ((c-pointer (struct Rectangle)) destRec)
-                            ((c-pointer (struct Vector2)) origin)
-                            (float rotation)
-                            ((c-pointer (struct Color)) tint))
-       "DrawTexturePro(*curTexture, *sourceRec, *destRec, *origin, rotation, *tint);")
-     cur-texture surce-rec dest-rec origin rotation tint))
+  (foreign-define-with-struct draw-texture-pro
+                              "DrawTexturePro"
+                              void
+                              (((c-pointer (struct Texture2D)) curTexture)
+                               ((c-pointer (struct Rectangle)) sourceRec)
+                               ((c-pointer (struct Rectangle)) destRec)
+                               ((c-pointer (struct Vector2)) origin)
+                               (float rotation)
+                               ((c-pointer (struct Color)) tint)))
 
   ;;; Font Loading and Text Drawing Functions (Module: text)
 
   (define draw-fps
     (foreign-lambda void "DrawFPS" int int))
 
-  (define (draw-text text pos-x pos-y font-size text-color)
-    ((foreign-lambda* void ((c-string text)
-                            (int posX)
-                            (int posY)
-                            (int fontSize)
-                            ((c-pointer (struct Color)) textColor))
-       "DrawText(text, posX, posY, fontSize, *textColor);")
-     text pos-x pos-y font-size text-color))
+  (foreign-define-with-struct draw-text
+                              "DrawText"
+                              void
+                              ((c-string text)
+                               (int posX)
+                               (int posY)
+                               (int fontSize)
+                               ((c-pointer (struct Color)) textColor)))
 
-  (define (measure-text text font-size)
-    ((foreign-lambda* int ((c-string text) (int fontSize))
-       "C_return(MeasureText(text, fontSize));")
-     text font-size))
+  (foreign-define-with-struct measure-text
+                              "MeasureText"
+                              int
+                              ((c-string text) (int fontSize)))
 
-  (define (draw-cube position width height length color)
-    ((foreign-lambda* void (((c-pointer (struct Vector3)) position)
-                            (float width)
-                            (float height)
-                            (float length)
-                            ((c-pointer (struct Color)) color))
-       "DrawCube(*position, width, height, length, *color);")
-     position width height length color))
+  (foreign-define-with-struct draw-cube
+                              "DrawCube"
+                              void
+                              (((c-pointer (struct Vector3)) position)
+                               (float width)
+                               (float height)
+                               (float length)
+                               ((c-pointer (struct Color)) color)))
 
-  (define (draw-cube-v position size color)
-    ((foreign-lambda* void (((c-pointer (struct Vector3)) position)
-                            ((c-pointer (struct Vector3)) size)
-                            ((c-pointer (struct Color)) color))
-       "DrawCubeV(*position, *size, *color);")
-     position size color))
+  (foreign-define-with-struct draw-cube-v
+                              "DrawCubeV"
+                              void
+                              (((c-pointer (struct Vector3)) position)
+                               ((c-pointer (struct Vector3)) size)
+                               ((c-pointer (struct Color)) color)))
 
-  (define (draw-cube-wires position width height length color)
-    ((foreign-lambda* void (((c-pointer (struct Vector3)) position)
-                            (float width)
-                            (float height)
-                            (float length)
-                            ((c-pointer (struct Color)) color))
-       "DrawCubeWires(*position, width, height, length, *color);")
-     position width height length color))
+  (foreign-define-with-struct draw-cube-wires
+                              "DrawCubeWires"
+                              void
+                              (((c-pointer (struct Vector3)) position)
+                               (float width)
+                               (float height)
+                               (float length)
+                               ((c-pointer (struct Color)) color)))
 
-  (define (draw-sphere center-pos radius sphere-color)
-    ((foreign-lambda* void (((c-pointer (struct Vector3)) centerPos)
-                            (float radius)
-                            ((c-pointer (struct Color)) color))
-       "DrawSphere(*centerPos, radius, *color);")
-     center-pos radius sphere-color))
+  (foreign-define-with-struct draw-sphere
+                              "DrawSphere"
+                              void
+                              (((c-pointer (struct Vector3)) centerPos)
+                               (float radius)
+                               ((c-pointer (struct Color)) color)))
 
-  (define (draw-sphere-wires center-pos radius rings slices sphere-color)
-    ((foreign-lambda* void (((c-pointer (struct Vector3)) centerPos)
-                            (float radius)
-                            (int rings)
-                            (int slices)
-                            ((c-pointer (struct Color)) color))
-       "DrawSphereWires(*centerPos, radius, rings, slices, *color);")
-     center-pos radius rings slices sphere-color))
+  (foreign-define-with-struct draw-sphere-wires
+                              "DrawSphereWires"
+                              void
+                              (((c-pointer (struct Vector3)) centerPos)
+                               (float radius)
+                               (int rings)
+                               (int slices)
+                               ((c-pointer (struct Color)) color)))
 
-  (define (draw-plane center-pos size color)
-    ((foreign-lambda* void (((c-pointer (struct Vector3)) centerPos)
-                            ((c-pointer (struct Vector2)) size)
-                            ((c-pointer (struct Color)) color))
-       "DrawPlane(*centerPos, *size, *color);")
-     center-pos size color))
+  (foreign-define-with-struct draw-plane
+                              "DrawPlane"
+                              void
+                              (((c-pointer (struct Vector3)) centerPos)
+                               ((c-pointer (struct Vector2)) size)
+                               ((c-pointer (struct Color)) color)))
 
   (define draw-grid
     (foreign-lambda void "DrawGrid" int float))
 
-  (define (draw-gizmo position)
-    ((foreign-lambda* void (((c-pointer (struct Vector3)) position))
-       "DrawGizmo(*position);")
-     position))
+  (foreign-define-with-struct draw-gizmo
+                              "DrawGizmo"
+                              void
+                              (((c-pointer (struct Vector3)) position)))
 
   ;;; Model 3d Loading and Drawing Functions (Module: models)
 
@@ -1016,10 +1044,10 @@
       (set-finalizer! new-model free)
       new-model))
 
-  (define (unload-model model-to-unload)
-    ((foreign-lambda* void (((c-pointer (struct Model)) modelToUnload))
-       "UnloadModel(*modelToUnload);")
-     model-to-unload))
+  (foreign-define-with-struct unload-model
+                              "UnloadModel"
+                              void
+                              (((c-pointer (struct Model)) modelToUnload)))
 
   ;; Mesh generation functions
 
@@ -1048,22 +1076,22 @@
 
   ;; Model drawing functions
 
-  (define (draw-model model position scale tint)
-    ((foreign-lambda* void (((c-pointer (struct Model)) model)
-                            ((c-pointer (struct Vector3)) position)
-                            (float scale)
-                            ((c-pointer (struct Color)) tint))
-       "DrawModel(*model, *position, scale, *tint);")
-     model position scale tint))
+  (foreign-define-with-struct draw-model
+                              "DrawModel"
+                              void
+                              (((c-pointer (struct Model)) model)
+                               ((c-pointer (struct Vector3)) position)
+                               (float scale)
+                               ((c-pointer (struct Color)) tint)))
 
-  (define (draw-billboard camera texture center size tint)
-    ((foreign-lambda* void (((c-pointer (struct Camera)) camera)
-                            ((c-pointer (struct Texture2D)) texture)
-                            ((c-pointer (struct Vector3)) center)
-                            (float size)
-                            ((c-pointer (struct Color)) tint))
-       "DrawBillboard(*camera, *texture, *center, size, *tint);")
-     camera texture center size tint))
+  (foreign-define-with-struct draw-billboard
+                              "DrawBillboard"
+                              void
+                              (((c-pointer (struct Camera)) camera)
+                               ((c-pointer (struct Texture2D)) texture)
+                               ((c-pointer (struct Vector3)) center)
+                               (float size)
+                               ((c-pointer (struct Color)) tint)))
 
   ;; Collision detection functions
 
@@ -1104,26 +1132,26 @@
       (set-finalizer! new-shader free)
       new-shader))
 
-  (define (unload-shader shader-to-unload)
-    ((foreign-lambda* void (((c-pointer (struct Shader)) shaderToUnload))
-       "UnloadShader(*shaderToUnload);")
-     shader-to-unload))
+  (foreign-define-with-struct unload-shader
+                              "UnloadShader"
+                              void
+                              (((c-pointer (struct Shader)) shaderToUnload)))
 
   ;; Shader configuration functions
 
-  (define (get-shader-location target-shader uniform-name)
-    ((foreign-lambda* int (((c-pointer (struct Shader)) targetShader)
-                           (c-string uniformName))
-       "C_return(GetShaderLocation(*targetShader, uniformName));")
-     target-shader uniform-name))
+  (foreign-define-with-struct get-shader-location
+                              "GetShaderLocation"
+                              int
+                              (((c-pointer (struct Shader)) targetShader)
+                               (c-string uniformName)))
 
-  (define (set-shader-value! target-shader uniform-loc value uniform-type)
-    ((foreign-lambda* void (((c-pointer (struct Shader)) shader)
-                            (int uniformLoc)
-                            ((c-pointer void) value)
-                            (int uniformType))
-       "SetShaderValue(*shader, uniformLoc, value, uniformType);")
-     target-shader uniform-loc value uniform-type))
+  (foreign-define-with-struct set-shader-value!
+                              "SetShaderValue"
+                              void
+                              (((c-pointer (struct Shader)) shader)
+                               (int uniformLoc)
+                               ((c-pointer void) value)
+                               (int uniformType)))
 
   ;; Texture maps generation (PBR)
   ;; NOTE: Required shaders should be provided
@@ -1142,10 +1170,10 @@
 
   ;; Shading begin/end functions
 
-  (define (begin-shader-mode shader)
-    ((foreign-lambda* void (((c-pointer (struct Shader)) shader))
-      "BeginShaderMode(*shader);")
-    shader))
+  (foreign-define-with-struct begin-shader-mode
+                              "BeginShaderMode"
+                              void
+                              (((c-pointer (struct Shader)) shader)))
 
   (define end-shader-mode
     (foreign-lambda void "EndShaderMode"))
@@ -1180,16 +1208,17 @@
       (set-finalizer! new-sound free)
       new-sound))
 
-  (define (unload-sound sound)
-    (foreign-lambda* void (((c-pointer (struct Sound)) sound))
-      "UnloadSound(*sound);"))
+  (foreign-define-with-struct unload-sound
+                              "UnloadSound"
+                              void
+                              (((c-pointer (struct Sound)) sound)))
 
   ;; Wave/Sound management functions
 
-  (define (play-sound sound-to-play)
-    ((foreign-lambda* void (((c-pointer (struct Sound)) soundToPlay))
-       "PlaySound(*soundToPlay);")
-     sound-to-play))
+  (foreign-define-with-struct play-sound
+                              "PlaySound"
+                              void
+                              (((c-pointer (struct Sound)) soundToPlay)))
 
   ;; Music management functions
 
