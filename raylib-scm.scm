@@ -659,9 +659,9 @@
 
   ; Creates foreign-lambda for C function with struct arguments passed by value.
   ; Arguments:
-  ; - name of C function;
-  ; - return type
-  ; - argument list in standard Chicken FFI format
+  ; - name of C function (string);
+  ; - return type in standard Chicken FFI format;
+  ; - argument list in standard Chicken FFI format.
   (define-syntax foreign-lambda-with-struct
     (er-macro-transformer
      (lambda (exp rename compare)
@@ -680,9 +680,9 @@
   ; Creates named Scheme function for C function with struct arguments passed by value.
   ; Arguments:
   ; - Scheme function name
-  ; - name of C function;
-  ; - return type
-  ; - argument list in standard Chicken FFI format
+  ; - name of C function (string);
+  ; - return type in standard Chicken FFI format;
+  ; - argument list in standard Chicken FFI format.
   (define-syntax foreign-define-with-struct
     (er-macro-transformer
      (lambda (exp rename compare)
@@ -694,6 +694,25 @@
             ((foreign-lambda-with-struct ,@to-lambda)
              ,@names))))))
 
+  ; Creates boolean Scheme function (predicate) for C function returning 0 for false and
+  ; something else for true.
+  ; Arguments:
+  ; - Scheme function name
+  ; - name of C function (string);
+  ; - return type in standard Chicken FFI format;
+  ; - argument list in standard Chicken FFI format.
+  (define-syntax foreign-predicate
+    (er-macro-transformer
+     (lambda (exp rename compare)
+       (let* ((to-lambda (drop exp 2))
+              (args (drop exp 4))
+              (function-name (list-ref exp 1))
+              (names (map cadr (car args))))
+         `(define (,function-name ,@names)
+            (not (= ((foreign-lambda-with-struct ,@to-lambda)
+                     ,@names)
+                    0)))))))
+
   ;;; Window and Graphics Device Functions (Module: core)
 
   ;; Window-related functions
@@ -701,10 +720,7 @@
   (define init-window
     (foreign-lambda void "InitWindow" int int c-string))
 
-  (define (window-should-close?)
-    (define window-should-close-c
-      (foreign-lambda int "WindowShouldClose"))
-    (not (= (window-should-close-c) 0)))
+  (foreign-predicate window-should-close? "WindowShouldClose" int ())
 
   (define close-window
     (foreign-lambda void "CloseWindow"))
@@ -788,23 +804,11 @@
 
   ;;; Input Handling Functions (Module: core)
 
-  (define (is-key-pressed? key-code)
-    (not (= ((foreign-lambda* int ((int keyCode))
-               "C_return(IsKeyPressed(keyCode));")
-             key-code)
-            0)))
+  (foreign-predicate is-key-pressed? "IsKeyPressed" int ((int keyCode)))
 
-  (define (is-key-down? key-code)
-    (not (= ((foreign-lambda* int ((int keyCode))
-               "C_return(IsKeyDown(keyCode));")
-             key-code)
-            0)))
+  (foreign-predicate is-key-down? "IsKeyDown" int ((int keyCode)))
 
-  (define (is-mouse-button-pressed? mouse-button)
-    (not (= ((foreign-lambda* int ((int mouseButton))
-               "C_return(IsMouseButtonPressed(mouseButton));")
-             mouse-button)
-            0)))
+  (foreign-predicate is-mouse-button-pressed? "IsMouseButtonPressed" int ((int mouseButton)))
 
   (define (get-mouse-position)
     (let ((new-vector
@@ -865,13 +869,11 @@
 
   ;;; Basic shapes collision detection functions
 
-  (define (check-collision-point-rec point rec)
-    (not (= ((foreign-lambda* int (((c-pointer (struct Vector2)) point)
-                                   ((c-pointer (struct Rectangle)) rec))
-               "C_return(CheckCollisionPointRec(*point, *rec));")
-             point rec)
-            0)))
-
+  (foreign-predicate check-collision-point-rec
+                     "CheckCollisionPointRec"
+                     int
+                     (((c-pointer (struct Vector2)) point)
+                      ((c-pointer (struct Rectangle)) rec)))
 
   ;;; Texture Loading and Drawing Functions (Module: textures)
 
@@ -1117,27 +1119,23 @@
 
   ;; Collision detection functions
 
-  (define (check-collision-boxes box-1 box-2)
-    (not (= ((foreign-lambda* int (((c-pointer (struct BoundingBox)) box1)
-                                   ((c-pointer (struct BoundingBox)) box2))
-               "C_return(CheckCollisionBoxes(*box1, *box2));")
-             box-1 box-2)
-            0)))
+  (foreign-predicate check-collision-boxes
+                     "CheckCollisionBoxes"
+                     int
+                     (((c-pointer (struct BoundingBox)) box1)
+                      ((c-pointer (struct BoundingBox)) box2)))
 
-  (define (check-collision-box-sphere target-box sphere-center sphere-radius)
-    (not (= ((foreign-lambda* int (((c-pointer (struct BoundingBox)) box)
-                                   ((c-pointer (struct Vector3)) centerSphere)
-                                   (float radiusSphere))
-               "C_return(CheckCollisionBoxSphere(*box, *centerSphere, radiusSphere));")
-             target-box sphere-center sphere-radius)
-            0)))
+  (foreign-predicate check-collision-box-sphere
+                     "CheckCollisionBoxSphere"
+                     int (((c-pointer (struct BoundingBox)) box)
+                          ((c-pointer (struct Vector3)) centerSphere)
+                          (float radiusSphere)))
 
-  (define (check-collision-ray-box target-ray target-box)
-    (not (= ((foreign-lambda* int (((c-pointer (struct Ray)) ray)
-                                   ((c-pointer (struct BoundingBox)) box))
-               "C_return(CheckCollisionRayBox(*ray, *box));")
-             target-ray target-box)
-            0)))
+  (foreign-predicate check-collision-ray-box
+                     "CheckCollisionRayBox"
+                     int
+                     (((c-pointer (struct Ray)) ray)
+                      ((c-pointer (struct BoundingBox)) box)))
 
   ;;; Shaders System Functions (Module: rlgl)
   ;;; NOTE: This functions are useless when using OpenGL 1.1
