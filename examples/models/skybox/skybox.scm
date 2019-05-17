@@ -28,7 +28,7 @@
 
   ; Load skybox shader and set required locations
   ; NOTE: Some locations are automatically set at shader loading
-  (set-material-shader! skybox material-shader)
+  (set-material-shader! skybox 0 material-shader)
   (set-shader-value! material-shader
                      (get-shader-location material-shader "environmentMap")
                      (allocate-int texmap-index/map-cubemap)
@@ -42,7 +42,7 @@
 
   (let (; Generate cubemap (texture with 6 quads-cube-mapping) from panorama HDR texture
         ; NOTE: New texture is generated rendering to texture, shader computes the sphre->cube coordinates mapping
-        (skybox (set-cubemap-texture skybox (gen-texture-cubemap cubemap-shader tex-hdr 512))))
+        (skybox (set-cubemap-texture skybox 0 (gen-texture-cubemap cubemap-shader tex-hdr 512))))
 
     ; Texture not required anymore, cubemap already generated
     (unload-texture tex-hdr)

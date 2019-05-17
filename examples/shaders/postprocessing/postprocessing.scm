@@ -54,7 +54,7 @@
        ; Load model texture (diffuse map)
        (church-texture (load-texture "resources/models/church_diffuse.png"))
        ; Set model diffuse texture
-       (church-model (set-diffuse-texture church-model church-texture))
+       (church-model (set-diffuse-texture church-model 0 church-texture))
        ; Load all postpro shaders
        ; NOTE: All postpro shader use the base vertex shader (DEFAULT_VERTEX_SHADER)
        (shaders

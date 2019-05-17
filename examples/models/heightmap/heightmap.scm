@@ -26,7 +26,7 @@
        (map-model (load-model-from-mesh map-mesh))
 
        ; Set map diffuse texture
-       (map-model (set-diffuse-texture map-model map-texture))
+       (map-model (set-diffuse-texture map-model 0 map-texture))
 
        ; Define model position
        (map-position (make-vector-3 -8.0 0.0 -8.0)))

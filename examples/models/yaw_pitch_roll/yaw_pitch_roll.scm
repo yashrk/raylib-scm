@@ -57,7 +57,7 @@
        (framebuffer (load-render-texture 192 192))
        (plane-model (load-model "resources/plane.obj"))
        (tex-plane-diffuse (load-texture "resources/plane_diffuse.png"))
-       (plane-model (set-diffuse-texture plane-model tex-plane-diffuse))
+       (plane-model (set-diffuse-texture plane-model 0 tex-plane-diffuse))
        (cur-camera (make-camera (make-vector-3 0.0 60.0 -120.0)
                                 (make-vector-3 0.0 12.0 0.0)
                                 (make-vector-3 0.0 1.0 0.0)
@@ -218,7 +218,7 @@
           (unload-texture tex-plane)
           (close-window))))
 
-  (gen-texture-mipmaps (get-diffuse-texture plane-model))
+  (gen-texture-mipmaps (get-diffuse-texture plane-model 0))
   (main-loop (make-state model: plane-model
                          pitch: 0.0
                          roll:  0.0

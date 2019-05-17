@@ -741,7 +741,7 @@
   (foreign-define-with-struct begin-mode-3d
                               "BeginMode3D"
                               void
-                              (((c-pointer (struct Camera)) cameraP)))
+                              (((c-pointer (struct Camera3D)) cameraP)))
 
   (define end-mode-3d
     (foreign-lambda void "EndMode3D"))
@@ -759,7 +759,7 @@
   (define (get-mouse-ray mouse-position cur-camera)
     (let ((new-ray
            ((foreign-lambda* ray (((c-pointer (struct Vector2)) mousePosition)
-                                  ((c-pointer (struct Camera)) camera))
+                                  ((c-pointer (struct Camera3D)) camera))
               "Ray* ray = (Ray*)malloc(sizeof(Ray));
                *ray = GetMouseRay(*mousePosition, *camera);
                C_return(ray);")
@@ -827,7 +827,7 @@
   (foreign-define-with-struct set-camera-mode
                               "SetCameraMode"
                               void
-                              (((c-pointer (struct Camera)) targetCamera)
+                              (((c-pointer (struct Camera3D)) targetCamera)
                                (int cameraMode)))
 
   (define update-camera
@@ -1111,7 +1111,7 @@
   (foreign-define-with-struct draw-billboard
                               "DrawBillboard"
                               void
-                              (((c-pointer (struct Camera)) camera)
+                              (((c-pointer (struct Camera3D)) camera)
                                ((c-pointer (struct Texture2D)) texture)
                                ((c-pointer (struct Vector3)) center)
                                (float size)
@@ -1422,7 +1422,7 @@
 
   (define (camera-position target-camera)
     (let ((position
-           ((foreign-lambda* vector-3 (((c-pointer (struct Camera)) targetCamera))
+           ((foreign-lambda* vector-3 (((c-pointer (struct Camera3D)) targetCamera))
               "Vector3* vector = (Vector3*)malloc(sizeof(Vector3));
                *vector = targetCamera->position;
                C_return(vector);")
@@ -1432,7 +1432,7 @@
 
   (define (camera-target target-camera)
     (let ((target
-           ((foreign-lambda* vector-3 (((c-pointer (struct Camera)) targetCamera))
+           ((foreign-lambda* vector-3 (((c-pointer (struct Camera3D)) targetCamera))
               "Vector3* vector = (Vector3*)malloc(sizeof(Vector3));
                *vector = targetCamera->target;
                C_return(vector);")
@@ -1442,7 +1442,7 @@
 
   (define (camera-up target-camera)
     (let ((up
-           ((foreign-lambda* vector-3 (((c-pointer (struct Camera)) targetCamera))
+           ((foreign-lambda* vector-3 (((c-pointer (struct Camera3D)) targetCamera))
               "Vector3* vector = (Vector3*)malloc(sizeof(Vector3));
                *vector = targetCamera->up;
                C_return(vector);")
@@ -1451,12 +1451,12 @@
       up))
 
   (define (camera-fovy target-camera)
-    ((foreign-lambda* float (((c-pointer (struct Camera)) targetCamera))
+    ((foreign-lambda* float (((c-pointer (struct Camera3D)) targetCamera))
        "C_return(targetCamera->fovy);")
      target-camera))
 
   (define (camera-type target-camera)
-    ((foreign-lambda* int (((c-pointer (struct Camera)) targetCamera))
+    ((foreign-lambda* int (((c-pointer (struct Camera3D)) targetCamera))
        "C_return(targetCamera->type);")
      target-camera))
 
@@ -1480,10 +1480,11 @@
        "C_return(color->a);")
      target-color))
 
-  (define (get-diffuse-texture cur-model)
-    ((foreign-lambda* texture-2d (((c-pointer (struct Model)) curModel))
-       "C_return(&curModel->material.maps[MAP_DIFFUSE].texture);")
-     cur-model))
+  (define (get-diffuse-texture cur-model material-index)
+    ((foreign-lambda* texture-2d (((c-pointer (struct Model)) curModel)
+                                  (int index))
+       "C_return(&curModel->materials[index].maps[MAP_DIFFUSE].texture);")
+     cur-model material-index))
 
   (define (make-bounding-box min max)
     (let ((new-bounding-box
@@ -1504,7 +1505,7 @@
                                      (vector-3 up)
                                      (float fovy)
                                      (int camType))
-              "Camera* camera = (Camera*)malloc(sizeof(Camera));
+              "Camera3D* camera = (Camera3D*)malloc(sizeof(Camera3D));
                camera->position = *position;
                camera->target = *target;
                camera->up = *up;
@@ -1597,13 +1598,14 @@
       (set-finalizer! new-vector free)
       new-vector))
 
-  (define (model-mesh target-model)
+  (define (model-mesh target-model mesh-index)
     (let ((new-mesh
-           ((foreign-lambda* mesh (((c-pointer (struct Model)) model))
+           ((foreign-lambda* mesh (((c-pointer (struct Model)) model)
+                                   (int index))
               "Mesh* mesh = (Mesh*)malloc(sizeof(Mesh));
-               *mesh = model->mesh;
+               *mesh = model->meshes[index];
                C_return(mesh);")
-            target-model)))
+            target-model mesh-index)))
       (set-finalizer! new-mesh free)
       new-mesh))
 
@@ -1617,13 +1619,14 @@
       (set-finalizer! new-matrix free)
       new-matrix))
 
-  (define (model-material target-model)
+  (define (model-material target-model material-index)
     (let ((new-material
-           ((foreign-lambda* material (((c-pointer (struct Model)) model))
+           ((foreign-lambda* material (((c-pointer (struct Model)) model)
+                                       (int index))
               "Material* material = (Material*)malloc(sizeof(Material));
-               *material = model->material;
+               *material = model->materials[index];
                C_return(material);")
-            target-model)))
+            target-model material-index)))
       (set-finalizer! new-material free)
       new-material))
 
@@ -1652,33 +1655,36 @@
       "C_return(&(targetTexture->texture));")
      target-texture))
 
-  (define (set-cubemap-texture source-model new-texture)
+  (define (set-cubemap-texture source-model material-index new-texture)
     (let ((result ((foreign-lambda* model (((c-pointer (struct Model)) sourceModel)
+                                           (int index)
                                            ((c-pointer (struct Texture2D)) newTexture))
                      "Model* model = (Model*)malloc(sizeof(Model));
                       *model = *sourceModel;
-                      model->material.maps[MAP_CUBEMAP].texture = *newTexture;
+                      model->materials[index].maps[MAP_CUBEMAP].texture = *newTexture;
                       C_return(model);")
-                   source-model new-texture)))
+                   source-model material-index new-texture)))
       (set-finalizer! result free)
       result))
 
-  (define (set-diffuse-texture source-model new-texture)
+  (define (set-diffuse-texture source-model material-index new-texture)
     (let ((result ((foreign-lambda* model (((c-pointer (struct Model)) sourceModel)
+                                           (int index)
                                            ((c-pointer (struct Texture2D)) newTexture))
                      "Model* model = (Model*)malloc(sizeof(Model));
                       *model = *sourceModel;
-                      model->material.maps[MAP_DIFFUSE].texture = *newTexture;
+                      model->materials[index].maps[MAP_DIFFUSE].texture = *newTexture;
                       C_return(model);")
-                   source-model new-texture)))
+                   source-model material-index new-texture)))
       (set-finalizer! result free)
       result))
 
-  (define (set-material-shader! target-model material-shader)
+  (define (set-material-shader! target-model material-index material-shader)
     ((foreign-lambda* void (((c-pointer (struct Model)) targetModel)
+                            (int index)
                             ((c-pointer (struct Shader)) materialShader))
-       "targetModel->material.shader = *materialShader;")
-     target-model material-shader))
+       "targetModel->materials[index].shader = *materialShader;")
+     target-model material-index material-shader))
 
   (define (set-transform target-model transform)
     (let ((result ((foreign-lambda* model (((c-pointer (struct Model)) targetModel)

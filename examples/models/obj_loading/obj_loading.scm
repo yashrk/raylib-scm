@@ -17,7 +17,7 @@
        (position (make-vector-3 0.0 0.0 0.0))
        (castle-model (load-model "resources/models/castle.obj"))
        (castle-texture (load-texture "resources/models/castle_diffuse.png"))
-       (new-castle-model (set-diffuse-texture castle-model castle-texture)))
+       (new-castle-model (set-diffuse-texture castle-model 0 castle-texture)))
 
   (define (main-loop)
     (if (not (window-should-close?))
