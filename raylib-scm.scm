@@ -713,6 +713,45 @@
                      ,@names)
                     0)))))))
 
+  ; Creates foreign-lambda* that creates newly allocated C structure
+  ; Arguments:
+  ; - Scheme function name
+  ; - name of C function (string);
+  ; - return type in Scheme format;
+  ; - return type in standard Chicken FFI format;
+  ; - list of arguments in standard Chicken FFI format.
+  (define-syntax foreign-constructor
+    (er-macro-transformer
+     (lambda (exp rename compare)
+       (let* ((rest (drop exp 5))
+              (args (if (eq? rest '())
+                        '()
+                        (car rest)))
+              (function-name (list-ref exp 1))
+              (foreign-function-name (list-ref exp 2))
+              (return-type (list-ref exp 3))
+              (c-type (symbol->string (cadadr (list-ref exp 4))))
+              (names (map cadr args))
+              (c-names (map get-argument args))
+              (c-names (string-join c-names ", "))
+              (c-function (string-join (list foreign-function-name "(" c-names ")") ""))
+              (allocation-code
+               (format #f
+                       "~a* new_object = (~a*)malloc(sizeof(~a));
+                        *new_object = ~a;
+                        C_return(new_object);"
+                       c-type
+                       c-type
+                       c-type
+                       c-function)))
+         `(define (,function-name ,@names)
+            (let ((new-object
+                   ((foreign-lambda* ,return-type ,args
+              ,allocation-code)
+            ,@names)))
+              (set-finalizer! new-object free)
+              new-object))))))
+
   ;;; Window and Graphics Device Functions (Module: core)
 
   ;; Window-related functions
@@ -756,16 +795,12 @@
 
   ;; Screen-space-related functions
 
-  (define (get-mouse-ray mouse-position cur-camera)
-    (let ((new-ray
-           ((foreign-lambda* ray (((c-pointer (struct Vector2)) mousePosition)
-                                  ((c-pointer (struct Camera3D)) camera))
-              "Ray* ray = (Ray*)malloc(sizeof(Ray));
-               *ray = GetMouseRay(*mousePosition, *camera);
-               C_return(ray);")
-            mouse-position cur-camera)))
-      (set-finalizer! new-ray free)
-      new-ray))
+  (foreign-constructor get-mouse-ray
+                       "GetMouseRay"
+                       ray
+                       (c-pointer (struct Ray))
+                       (((c-pointer (struct Vector2)) mousePosition)
+                        ((c-pointer (struct Camera3D)) curCamera)))
 
   ;; timing-related functions
 
@@ -777,15 +812,12 @@
 
   ;; Color-related functions
 
-  (define (fade color alpha)
-    (let ((new-color ((foreign-lambda* color (((c-pointer (struct Color)) baseColor)
-                                              (float alpha))
-                        "Color* color = (Color*)malloc(sizeof(Color));
-                         *color = Fade(*baseColor, alpha);
-                         C_return(color);")
-                      color alpha)))
-      (set-finalizer! new-color free)
-      new-color))
+  (foreign-constructor fade
+                       "Fade"
+                       color
+                       (c-pointer (struct Color))
+                       (((c-pointer (struct Color)) baseColor)
+                        (float alpha)))
 
   ;; Misc. functions
 
@@ -810,14 +842,10 @@
 
   (foreign-predicate is-mouse-button-pressed? "IsMouseButtonPressed" int ((int mouseButton)))
 
-  (define (get-mouse-position)
-    (let ((new-vector
-           ((foreign-lambda* vector-2 ()
-              "Vector2* vector = (Vector2*)malloc(sizeof(Vector2));
-               *vector = GetMousePosition();
-               C_return(vector);"))))
-      (set-finalizer! new-vector free)
-      new-vector))
+  (foreign-constructor get-mouse-position
+                       "GetMousePosition"
+                       vector-2
+                       (c-pointer (struct Vector2)))
 
   (define get-mouse-wheel-move
     (foreign-lambda int "GetMouseWheelMove"))
@@ -877,45 +905,30 @@
 
   ;;; Texture Loading and Drawing Functions (Module: textures)
 
-  (define (load-image file-name)
-    (let ((new-image
-           ((foreign-lambda* image ((c-string fileName))
-              "Image* image = (Image*)malloc(sizeof(Image));
-               *image = LoadImage(fileName);
-               C_return(image);")
-            file-name)))
-      (set-finalizer! new-image free)
-      new-image))
+  (foreign-constructor load-image
+                       "LoadImage"
+                       image
+                       (c-pointer (struct Image))
+                       ((c-string fileName)))
 
-  (define (load-texture file-name)
-    (let ((new-texture
-           ((foreign-lambda* texture-2d ((c-string fileName))
-              "Texture2D* texture = (Texture2D*)malloc(sizeof(Texture2D));
-               *texture = LoadTexture(fileName);
-               C_return(texture);")
-            file-name)))
-      (set-finalizer! new-texture free)
-      new-texture))
+  (foreign-constructor load-texture
+                       "LoadTexture"
+                       texture-2d
+                       (c-pointer (struct Texture2D))
+                       ((c-string fileName)))
 
-  (define (load-texture-from-image target-image)
-    (let ((new-texture
-           ((foreign-lambda* texture-2d (((c-pointer (struct Image)) targetImage))
-              "Texture2D* texture = (Texture2D*)malloc(sizeof(Texture2D));
-               *texture = LoadTextureFromImage(*targetImage);
-               C_return(texture);")
-            target-image)))
-      (set-finalizer! new-texture free)
-      new-texture))
+  (foreign-constructor load-texture-from-image
+                       "LoadTextureFromImage"
+                       texture-2d
+                       (c-pointer (struct Texture2D))
+                       (((c-pointer (struct Image)) targetImage)))
 
-  (define (load-render-texture width height)
-    (let ((new-render-texture
-           ((foreign-lambda* render-texture-2d ((int width) (int height))
-              "RenderTexture2D* renderTexture = (RenderTexture2D*)malloc(sizeof(RenderTexture2D));
-               *renderTexture = LoadRenderTexture(width, height);
-               C_return(renderTexture);")
-            width height)))
-      (set-finalizer! new-render-texture free)
-      new-render-texture))
+  (foreign-constructor load-render-texture
+                       "LoadRenderTexture"
+                       render-texture-2d
+                       (c-pointer (struct RenderTexture2D))
+                       ((int width)
+                        (int height)))
 
   (foreign-define-with-struct unload-image
                               "UnloadImage"
@@ -1048,25 +1061,17 @@
 
   ;; Model loading/unloading functions
 
-  (define (load-model file-name)
-    (let ((new-model
-           ((foreign-lambda* model ((c-string fileName))
-              "Model* model = (Model*)malloc(sizeof(Model));
-               *model = LoadModel(fileName);
-               C_return(model);")
-            file-name)))
-      (set-finalizer! new-model free)
-      new-model))
+  (foreign-constructor load-model
+                       "LoadModel"
+                       model
+                       (c-pointer (struct Model))
+                       ((c-string fileName)))
 
-  (define (load-model-from-mesh source-mesh)
-    (let ((new-model
-           ((foreign-lambda* model (((c-pointer (struct Mesh)) sourceMesh))
-              "Model* model = (Model*)malloc(sizeof(Model));
-               *model = LoadModelFromMesh(*sourceMesh);
-               C_return(model);")
-            source-mesh)))
-      (set-finalizer! new-model free)
-      new-model))
+  (foreign-constructor load-model-from-mesh
+                       "LoadModelFromMesh"
+                       model
+                       (c-pointer (struct Model))
+                       (((c-pointer (struct Mesh)) sourceMesh)))
 
   (foreign-define-with-struct unload-model
                               "UnloadModel"
@@ -1075,26 +1080,20 @@
 
   ;; Mesh generation functions
 
-  (define (gen-mesh-cube width height length)
-    (let ((new-cube
-           ((foreign-lambda* mesh ((float width) (float height) (float length))
-              "Mesh* cube = (Mesh*)malloc(sizeof(Mesh));
-               *cube = GenMeshCube(width, height, length);
-               C_return(cube);")
-            width height length)))
-      (set-finalizer! new-cube free)
-      new-cube))
+  (foreign-constructor gen-mesh-cube
+                       "GenMeshCube"
+                       mesh
+                       (c-pointer (struct Mesh))
+                       ((float width)
+                        (float height)
+                        (float length)))
 
-  (define (gen-mesh-heightmap map-image size-vector)
-    (let ((new-mesh
-           ((foreign-lambda* mesh (((c-pointer (struct Image)) mapImage)
-                                   ((c-pointer (struct Vector3)) sizeVector))
-              "Mesh* mesh = (Mesh*)malloc(sizeof(Mesh));
-               *mesh = GenMeshHeightmap(*mapImage, *sizeVector);
-               C_return(mesh);")
-            map-image size-vector)))
-      (set-finalizer! new-mesh free)
-      new-mesh))
+  (foreign-constructor gen-mesh-heightmap
+                       "GenMeshHeightmap"
+                       mesh
+                       (c-pointer (struct Mesh))
+                       (((c-pointer (struct Image)) mapImage)
+                        ((c-pointer (struct Vector3)) sizeVector)))
 
   ;; Material loading/unloading functions
 
@@ -1127,9 +1126,10 @@
 
   (foreign-predicate check-collision-box-sphere
                      "CheckCollisionBoxSphere"
-                     int (((c-pointer (struct BoundingBox)) box)
-                          ((c-pointer (struct Vector3)) centerSphere)
-                          (float radiusSphere)))
+                     int
+                     (((c-pointer (struct BoundingBox)) box)
+                      ((c-pointer (struct Vector3)) centerSphere)
+                      (float radiusSphere)))
 
   (foreign-predicate check-collision-ray-box
                      "CheckCollisionRayBox"
@@ -1142,15 +1142,12 @@
 
   ;; Shader loading/unloading functions
 
-  (define (load-shader vs-file-name fs-file-name)
-    (let ((new-shader
-           ((foreign-lambda* shader ((c-string vsFileName) (c-string fsFileName))
-              "Shader* shader = (Shader*)malloc(sizeof(Shader));
-               *shader = LoadShader(vsFileName, fsFileName);
-               C_return(shader);")
-            vs-file-name fs-file-name)))
-      (set-finalizer! new-shader free)
-      new-shader))
+  (foreign-constructor load-shader
+                       "LoadShader"
+                       shader
+                       (c-pointer (struct Shader))
+                       ((c-string vsFileName)
+                        (c-string fsFileName)))
 
   (foreign-define-with-struct unload-shader
                               "UnloadShader"
@@ -1176,17 +1173,13 @@
   ;; Texture maps generation (PBR)
   ;; NOTE: Required shaders should be provided
 
-  (define (gen-texture-cubemap texture-shader sky-hdr size)
-    (let ((new-texture
-           ((foreign-lambda* texture-2d (((c-pointer (struct Shader)) shader)
-                                         ((c-pointer (struct Texture2D)) skyHDR)
-                                         (int size))
-              "Texture2D* newTexture = (Texture2D*)malloc(sizeof(Texture2D));
-               *newTexture = GenTextureCubemap(*shader, *skyHDR, size);
-               C_return(newTexture);")
-            texture-shader sky-hdr size)))
-      (set-finalizer! new-texture free)
-      new-texture))
+  (foreign-constructor gen-texture-cubemap
+                       "GenTextureCubemap"
+                       texture-2d
+                       (c-pointer (struct Texture2D))
+                       (((c-pointer (struct Shader)) shader)
+                        ((c-pointer (struct Texture2D)) skyHDR)
+                        (int size)))
 
   ;; Shading begin/end functions
 
@@ -1218,15 +1211,11 @@
 
   ;; Wave/Sound loading/unloading functions
 
-  (define (load-sound file-name)
-    (let ((new-sound
-           ((foreign-lambda* sound ((c-string fileName))
-              "Sound* sound = (Sound*)malloc(sizeof(Sound));
-               *sound = LoadSound(fileName);
-               C_return(sound);")
-            file-name)))
-      (set-finalizer! new-sound free)
-      new-sound))
+  (foreign-constructor load-sound
+                       "LoadSound"
+                       sound
+                       (c-pointer (struct Sound))
+                       ((c-string fileName)))
 
   (foreign-define-with-struct unload-sound
                               "UnloadSound"
@@ -1277,130 +1266,82 @@
      m2 m6 m10 m14
      m3 m7 m11 m15))
 
-  (define (matrix-identity)
-    (let ((matrix-result
-           ((foreign-lambda* matrix ()
-              "Matrix* result = (Matrix*)malloc(sizeof(Matrix));
-               *result = MatrixIdentity();
-               C_return(result);"))))
-      (set-finalizer! matrix-result free)
-      matrix-result))
+  (foreign-constructor matrix-identity
+                       "MatrixIdentity"
+                       matrix
+                       (c-pointer (struct Matrix)))
 
-  (define (matrix-invert target-matrix)
-    (let ((matrix-result
-           ((foreign-lambda* matrix (((c-pointer (struct Matrix)) targetMatrix))
-              "Matrix* result = (Matrix*)malloc(sizeof(Matrix));
-               *result = MatrixInvert(*targetMatrix);
-               C_return(result);")
-            target-matrix)))
-      (set-finalizer! matrix-result free)
-      matrix-result))
+  (foreign-constructor matrix-invert
+                       "MatrixInvert"
+                       matrix
+                       (c-pointer (struct Matrix))
+                       (((c-pointer (struct Matrix)) targetMatrix)))
 
-  (define (matrix-multiply left right)
-    (let ((matrix-result
-           ((foreign-lambda* matrix (((c-pointer (struct Matrix)) left)
-                                     ((c-pointer (struct Matrix)) right))
-              "Matrix* result = (Matrix*)malloc(sizeof(Matrix));
-               *result = MatrixMultiply(*left, *right);
-               C_return(result);")
-            left right)))
-      (set-finalizer! matrix-result free)
-      matrix-result))
+  (foreign-constructor matrix-multiply
+                       "MatrixMultiply"
+                       matrix
+                       (c-pointer (struct Matrix))
+                       (((c-pointer (struct Matrix)) left)
+                        ((c-pointer (struct Matrix)) right)))
 
-  (define (matrix-rotate axis rad-angle)
-    (let ((matrix-result
-           ((foreign-lambda* matrix (((c-pointer (struct Vector3)) axis)
-                                     (float angle))
-              "Matrix* result = (Matrix*)malloc(sizeof(Matrix));
-               *result = MatrixRotate(*axis, angle);
-               C_return(result);")
-            axis rad-angle)))
-      (set-finalizer! matrix-result free)
-      matrix-result))
+  (foreign-constructor matrix-rotate
+                       "MatrixRotate"
+                       matrix
+                       (c-pointer (struct Matrix))
+                       (((c-pointer (struct Vector3)) axis)
+                        (float angle)))
 
-  (define (matrix-rotate-x rad-angle)
-    (let ((matrix-result
-           ((foreign-lambda* matrix ((float angle))
-              "Matrix* result = (Matrix*)malloc(sizeof(Matrix));
-               *result = MatrixRotateX(angle);
-               C_return(result);")
-            rad-angle)))
-      (set-finalizer! matrix-result free)
-      matrix-result))
+  (foreign-constructor matrix-rotate-x
+                       "MatrixRotateX"
+                       matrix
+                       (c-pointer (struct Matrix))
+                       ((float angle)))
 
-  (define (matrix-rotate-y rad-angle)
-    (let ((matrix-result
-           ((foreign-lambda* matrix ((float angle))
-              "Matrix* result = (Matrix*)malloc(sizeof(Matrix));
-               *result = MatrixRotateY(angle);
-               C_return(result);")
-            rad-angle)))
-      (set-finalizer! matrix-result free)
-      matrix-result))
+  (foreign-constructor matrix-rotate-y
+                       "MatrixRotateY"
+                       matrix
+                       (c-pointer (struct Matrix))
+                       ((float angle)))
 
-  (define (matrix-rotate-z rad-angle)
-    (let ((matrix-result
-           ((foreign-lambda* matrix ((float angle))
-              "Matrix* result = (Matrix*)malloc(sizeof(Matrix));
-               *result = MatrixRotateZ(angle);
-               C_return(result);")
-            rad-angle)))
-      (set-finalizer! matrix-result free)
-      matrix-result))
+  (foreign-constructor matrix-rotate-z
+                       "MatrixRotateZ"
+                       matrix
+                       (c-pointer (struct Matrix))
+                       ((float angle)))
 
-  (define (vector-3-add vector-1 vector-2)
-    (let ((summ
-           ((foreign-lambda* vector-3 (((c-pointer (struct Vector3)) vector1)
-                                       ((c-pointer (struct Vector3)) vector2))
-              "Vector3* result = (Vector3*)malloc(sizeof(Vector3));
-               *result = Vector3Add(*vector1, *vector2);
-               C_return(result);")
-            vector-1 vector-2)))
-      (set-finalizer! summ free)
-      summ))
+  (foreign-constructor vector-3-add
+                       "Vector3Add"
+                       vector-3
+                       (c-pointer (struct Vector3))
+                       (((c-pointer (struct Vector3)) vector1)
+                        ((c-pointer (struct Vector3)) vector2)))
 
-  (define (vector-3-negate target-vector)
-    (let ((negated
-           ((foreign-lambda* vector-3 (((c-pointer (struct Vector3)) vector))
-              "Vector3* result = (Vector3*)malloc(sizeof(Vector3));
-               *result = Vector3Negate(*vector);
-               C_return(result);")
-            target-vector)))
-      (set-finalizer! negated free)
-      negated))
+  (foreign-constructor vector-3-negate
+                       "Vector3Negate"
+                       vector-3
+                       (c-pointer (struct Vector3))
+                       (((c-pointer (struct Vector3)) vector)))
 
-  (define (vector-3-scale target-vector scale)
-    (let ((scaled
-           ((foreign-lambda* vector-3 (((c-pointer (struct Vector3)) vector)
-                                       (float scale))
-              "Vector3* result = (Vector3*)malloc(sizeof(Vector3));
-               *result = Vector3Scale(*vector, scale);
-               C_return(result);")
-            target-vector scale)))
-      (set-finalizer! scaled free)
-      scaled))
+  (foreign-constructor vector-3-scale
+                       "Vector3Scale"
+                       vector-3
+                       (c-pointer (struct Vector3))
+                       (((c-pointer (struct Vector3)) vector)
+                        (float scale)))
 
-  (define (vector-3-substract vector-1 vector-2)
-    (let ((summ
-           ((foreign-lambda* vector-3 (((c-pointer (struct Vector3)) vector1)
-                                       ((c-pointer (struct Vector3)) vector2))
-              "Vector3* result = (Vector3*)malloc(sizeof(Vector3));
-               *result = Vector3Subtract(*vector1, *vector2);
-               C_return(result);")
-            vector-1 vector-2)))
-      (set-finalizer! summ free)
-      summ))
+  (foreign-constructor vector-3-substract
+                       "Vector3Subtract"
+                       vector-3
+                       (c-pointer (struct Vector3))
+                       (((c-pointer (struct Vector3)) vector1)
+                        ((c-pointer (struct Vector3)) vector2)))
 
-  (define (vector-3-transform vector-to-transform transform-matrix)
-    (let ((transformed-vector
-           ((foreign-lambda* vector-3 (((c-pointer (struct Vector3)) vector)
-                                       ((c-pointer (struct Matrix)) matrix))
-              "Vector3* result = (Vector3*)malloc(sizeof(Vector3));
-               *result = Vector3Transform(*vector, *matrix);
-               C_return(result);")
-            vector-to-transform transform-matrix)))
-      (set-finalizer! transformed-vector free)
-      transformed-vector))
+  (foreign-constructor vector-3-transform
+                       "Vector3Transform"
+                       vector-3
+                       (c-pointer (struct Vector3))
+                       (((c-pointer (struct Vector3)) vector)
+                        ((c-pointer (struct Matrix)) matrix)))
 
   ;; Data structure helper functions
 
