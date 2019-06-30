@@ -747,8 +747,46 @@
          `(define (,function-name ,@names)
             (let ((new-object
                    ((foreign-lambda* ,return-type ,args
-              ,allocation-code)
-            ,@names)))
+                      ,allocation-code)
+                    ,@names)))
+              (set-finalizer! new-object free)
+              new-object))))))
+
+  ; Creates foreign-lambda* that allocates C structure
+  ; and fills its fields with given values.
+  ; Argumens:
+  ; - Scheme function name
+  ; - return type in Scheme format;
+  ; - string with C type of structure;
+  ; - list of fields in standard Chicken FFI format
+  (define-syntax foreign-constructor*
+    (er-macro-transformer
+     (lambda (exp rename compare)
+       (let* ((args (car (drop exp 4)))
+              (function-name (list-ref exp 1))
+              (return-type (list-ref exp 2))
+              (c-type (list-ref exp 3))
+              (names (map cadr args))
+              (c-names (map get-argument args))
+              (init-field (lambda (field)
+                            (format #f
+                                    "new_object->~a = ~a;"
+                                    (string-delete #\* field)
+                                    field)))
+              (init-strings (map init-field c-names))
+              (allocation-code (format #f
+                                       "~a* new_object = (~a*)malloc(sizeof(~a));
+                                        ~a
+                                        C_return(new_object);"
+                                       c-type
+                                       c-type
+                                       c-type
+                                       (string-join init-strings ""))))
+         `(define (,function-name ,@names)
+            (let ((new-object
+                   ((foreign-lambda* ,return-type ,args
+                      ,allocation-code)
+                    ,@names)))
               (set-finalizer! new-object free)
               new-object))))))
 
@@ -1235,36 +1273,13 @@
 
   ;; raymath
 
-  (define (make-matrix m0 m4 m8  m12
-                       m1 m5 m9  m13
-                       m2 m6 m10 m14
-                       m3 m7 m11 m15)
-    ((foreign-lambda* matrix ((float m0) (float m4) (float m8)  (float m12)
-                              (float m1) (float m5) (float m9)  (float m13)
-                              (float m2) (float m6) (float m10) (float m14)
-                              (float m3) (float m7) (float m11) (float m15))
-       "Matrix* matrix = (Matrix*)malloc(sizeof(Matrix));
-        matrix->m0  = m0;
-        matrix->m4  = m4;
-        matrix->m8  = m8;
-        matrix->m12 = m12;
-        matrix->m1  = m1;
-        matrix->m5  = m5;
-        matrix->m9  = m9;
-        matrix->m13 = m13;
-        matrix->m2  = m2;
-        matrix->m6  = m6;
-        matrix->m10 = m10;
-        matrix->m14 = m14;
-        matrix->m3  = m3;
-        matrix->m7  = m7;
-        matrix->m11 = m11;
-        matrix->m15 = m15;
-        C_return(matrix);")
-     m0 m4 m8  m12
-     m1 m5 m9  m13
-     m2 m6 m10 m14
-     m3 m7 m11 m15))
+  (foreign-constructor* make-matrix
+                        matrix
+                        "Matrix"
+                        ((float m0) (float m4) (float m8)  (float m12)
+                         (float m1) (float m5) (float m9)  (float m13)
+                         (float m2) (float m6) (float m10) (float m14)
+                         (float m3) (float m7) (float m11) (float m15)))
 
   (foreign-constructor matrix-identity
                        "MatrixIdentity"
@@ -1427,117 +1442,62 @@
        "C_return(&curModel->materials[index].maps[MAP_DIFFUSE].texture);")
      cur-model material-index))
 
-  (define (make-bounding-box min max)
-    (let ((new-bounding-box
-           ((foreign-lambda* bounding-box (((c-pointer (struct Vector3)) min)
-                                           ((c-pointer (struct Vector3)) max))
-              "BoundingBox* boundingBox = (BoundingBox*)malloc(sizeof(BoundingBox));
-               boundingBox->min = *min;
-               boundingBox->max = *max;
-               C_return(boundingBox);")
-            min max)))
-      (set-finalizer! new-bounding-box free)
-      new-bounding-box))
+  (foreign-constructor* make-bounding-box
+                        bounding-box
+                        "BoundingBox"
+                        (((c-pointer (struct Vector3)) min)
+                         ((c-pointer (struct Vector3)) max)))
 
-  (define (make-camera position target up fovy cam-type)
-    (let ((new-camera
-           ((foreign-lambda* camera ((vector-3 position)
-                                     (vector-3 target)
-                                     (vector-3 up)
-                                     (float fovy)
-                                     (int camType))
-              "Camera3D* camera = (Camera3D*)malloc(sizeof(Camera3D));
-               camera->position = *position;
-               camera->target = *target;
-               camera->up = *up;
-               camera->fovy = fovy;               // Camera field-of-view Y
-               camera->type = camType;
-               C_return(camera);")
-            position target up fovy cam-type)))
-      (set-finalizer! new-camera free)
-      new-camera))
+  (foreign-constructor* make-camera
+                        camera
+                        "Camera3D"
+                        (((c-pointer (struct Vector3)) position)
+                         ((c-pointer (struct Vector3)) target)
+                         ((c-pointer (struct Vector3)) up)
+                         (float fovy)
+                         (int type)))
 
-  (define (make-color r g b a)
-    (let ((new-color
-           ((foreign-lambda* color ((unsigned-int r)
-                                    (unsigned-int g)
-                                    (unsigned-int b)
-                                    (unsigned-int a))
-              "Color* color = (Color*)malloc(sizeof(Color));
-               color->r = r;
-               color->g = g;
-               color->b = b;
-               color->a = a;
-               C_return(color);")
-            r g b a)))
-      (set-finalizer! new-color free)
-      new-color))
+  (foreign-constructor* make-color
+                        color
+                        "Color"
+                        ((unsigned-int r)
+                         (unsigned-int g)
+                         (unsigned-int b)
+                         (unsigned-int a)))
 
-  (define (make-ray position direction)
-    (let ((new-ray
-           ((foreign-lambda* bounding-box (((c-pointer (struct Vector3)) position)
-                                           ((c-pointer (struct Vector3)) direction))
-              "Ray* ray = (Ray*)malloc(sizeof(Ray));
-               ray->position = *position;
-               ray->direction = *direction;
-               C_return(ray);")
-            position direction)))
-      (set-finalizer! new-ray free)
-      new-ray))
+  (foreign-constructor* make-ray
+                        bounding-box
+                        "Ray"
+                        (((c-pointer (struct Vector3)) position)
+                         ((c-pointer (struct Vector3)) direction)))
 
-  (define (make-rectangle x y width height)
-    (let ((new-rectangle
-           ((foreign-lambda* rectangle ((float x)
-                                        (float y)
-                                        (float width)
-                                        (float height))
-              "Rectangle* rectangle = (Rectangle*)malloc(sizeof(Rectangle));
-               rectangle->x = x;
-               rectangle->y = y;
-               rectangle->width = width;
-               rectangle->height = height;
-               C_return(rectangle);")
-            x y width height)))
-      (set-finalizer! new-rectangle free)
-      new-rectangle))
+  (foreign-constructor* make-rectangle
+                        rectangle
+                        "Rectangle"
+                        ((float x)
+                         (float y)
+                         (float width)
+                         (float height)))
 
-  (define (make-render-texture-2d id color-texture depth-texture)
-    (let ((result ((foreign-lambda* render-texture-2d
-                       ((unsigned-int id)
-                        ((c-pointer (struct Texture2D)) colorTexture)
-                        ((c-pointer (struct Texture2D)) depthTexture))
-                     "RenderTexture2D* renderTexture =
-                          (RenderTexture2D*)malloc(sizeof(RenderTexture2D));
-                      renderTexture->id = id;
-                      renderTexture->texture = *colorTexture;
-                      renderTexture->depth = *depthTexture;
-                      C_return(renderTexture);")
-                   id color-texture depth-texture)))
-      (set-finalizer! result free)
-      result))
+  (foreign-constructor* make-render-texture-2d
+                        render-texture-2d
+                        "RenderTexture2D"
+                        ((unsigned-int id)
+                         ((c-pointer (struct Texture2D)) texture)
+                         ((c-pointer (struct Texture2D)) depth)))
 
-  (define (make-vector-2 x y)
-    (let ((new-vector
-           ((foreign-lambda* vector-2 ((float x) (float y))
-              "Vector2* vector = (Vector2*)malloc(sizeof(Vector2));
-               vector->x = x;
-               vector->y = y;
-               C_return(vector);")
-            x y)))
-      (set-finalizer! new-vector free)
-      new-vector))
+  (foreign-constructor* make-vector-2
+                        vector-2
+                        "Vector2"
+                        ((float x)
+                         (float y)))
 
-  (define (make-vector-3 x y z)
-    (let ((new-vector
-           ((foreign-lambda* vector-3 ((float x) (float y) (float z))
-              "Vector3* vector = (Vector3*)malloc(sizeof(Vector3));
-               vector->x = x;
-               vector->y = y;
-               vector->z = z;
-             C_return(vector);")
-            x y z)))
-      (set-finalizer! new-vector free)
-      new-vector))
+  (foreign-constructor* make-vector-3
+                        vector-3
+                        "Vector3"
+                        ((float x)
+                         (float y)
+                         (float z)))
 
   (define (model-mesh target-model mesh-index)
     (let ((new-mesh

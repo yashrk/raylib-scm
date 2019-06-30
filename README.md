@@ -68,7 +68,7 @@ See `examples` directory.
  
 ## Current Raylib version
 
-Synchronized (well, kind of) with the commit [0ec46e89](https://github.com/raysan5/raylib/commit/0ec46e8976f48617fe39bc10a44ff7313d6b27ea).
+Synchronized (well, kind of) with the commit [4ad1fa85](https://github.com/raysan5/raylib/commit/4ad1fa85a4e118430b405cf7af4f2ae708716c91).
  
 ## Contacts
  
