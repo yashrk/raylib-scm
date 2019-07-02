@@ -49,12 +49,16 @@
 
      clear-background                                      ; Set background color
                                                            ; (framebuffer clear color)
-     begin-drawing                                         ; Setup canvas (framebuffer) to start drawing
-     end-drawing                                           ; End canvas drawing and swap buffers (double buffering)
+     begin-drawing                                         ; Setup canvas (framebuffer)
+                                                           ; to start drawing
+     end-drawing                                           ; End canvas drawing and swap
+                                                           ; buffers (double buffering)
      ;; begin-mode-2d                                         ; Initialize 2D mode with custom camera (2D)
      ;; end-mode-2d                                           ; Ends 2D mode with custom camera
-     begin-mode-3d                                         ; Initializes 3D mode with custom camera (3D)
-     end-mode-3d                                           ; Ends 3D mode and returns to default 2D orthographic mode
+     begin-mode-3d                                         ; Initializes 3D mode
+                                                           ; with custom camera (3D)
+     end-mode-3d                                           ; Ends 3D mode and returns to default
+                                                           ; 2D orthographic mode
      begin-texture-mode                                    ; Initializes render texture for drawing
      end-texture-mode                                      ; Ends drawing to render texture
 
@@ -68,7 +72,8 @@
 
      set-target-fps                                        ; Set target FPS (maximum)
      ;; get-fps                                               ; Returns current FPS
-     get-frame-time                                        ; Returns time in seconds for last frame drawn
+     get-frame-time                                        ; Returns time in seconds
+                                                           ; for last frame drawn
      ;; get-time                                              ; Returns elapsed time in seconds since InitWindow()
 
      ;; Color-related functions
@@ -83,13 +88,15 @@
 
      ;; Misc. functions
 
-     set-config-flags                                      ; Setup window configuration flags (view FLAGS)
+     set-config-flags                                      ; Setup window configuration flags
+                                                           ; (view FLAGS)
      set-trace-log-level                                   ; Set the current threshold (minimum)
                                                            ; log level
      ;; set-trace-log-callback                                ; Set a trace log callback to enable custom logging bypassing raylib's one
      ;; trace-log                                             ; Show trace log messages (LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_DEBUG)
      ;; take-screenshot                                       ; Takes a screenshot of current screen (saved a .png)
-     get-random-value                                      ; Returns a random value between min and max (both included)
+     get-random-value                                      ; Returns a random value between
+                                                           ; min and max (both included)
 
      ;; Files management functions
 
@@ -103,9 +110,14 @@
      ;; get-directory-files-                                  ; Get filenames in a directory path (memory should be freed)
      ;; clear-directory-files                                 ; Clear directory files paths buffers (free memory)
      ;; change-directory                                      ; Change working directory, returns true if success
-     ;; is-file-dropped                                       ; Check if a file has been dropped into window
-     ;; get-dropped-files                                     ; Get dropped files names (memory should be freed)
-     ;; clear-dropped-files                                   ; Clear dropped files paths buffer (free memory)
+     is-file-dropped                                       ; Check if a file has been dropped
+                                                           ; into window
+     get-dropped-files                                     ; Get dropped files names
+                                                           ; (memory should be freed)
+                                                           ; Warning: API differs from the original
+                                                           ; raylib, no "count" argument provided
+     clear-dropped-files                                   ; Clear dropped files paths buffer
+                                                           ; (free memory)
      ;; get-file-mod-time                                     ; Get file modification time (last write time)
 
      ;; ; Persistent storage management
@@ -229,13 +241,15 @@
 
      ;; Image/Texture2D data loading/unloading/saving functions
 
-     load-image                                            ; Load image from file into CPU memory (RAM)
+     load-image                                            ; Load image from file into
+                                                           ; CPU memory (RAM)
      ;; load-image-ex                                         ; Load image from Color array data (RGBA - 32bit)
      ;; load-image-pro                                        ; Load image from raw data with parameters
      ;; load-image-raw                                        ; Load image from RAW file data
      ;; export-image                                          ; Export image data to file
      ;; export-image-as-code                                  ; Export image as code file defining an array of bytes
-     load-texture                                          ; Load texture from file into GPU memory (VRAM)
+     load-texture                                          ; Load texture from file
+                                                           ; into GPU memory (VRAM)
      load-texture-from-image                               ; Load texture from image data
      load-render-texture                                   ; Load texture for rendering (framebuffer)
      unload-image                                          ; Unload image from CPU memory (RAM)
@@ -424,7 +438,8 @@
      ;; Collision detection functions
 
      ;; check-collision-spheres                               ; Detect collision between two spheres
-     check-collision-boxes                                 ; Detect collision between two bounding boxes
+     check-collision-boxes                                 ; Detect collision between
+                                                           ; two bounding boxes
      check-collision-box-sphere                            ; Detect collision between box and sphere
      ;; check-collision-ray-sphere                            ; Detect collision between ray and sphere
      ;; check-collision-ray-sphere-ex                         ; Detect collision between ray and sphere, returns collision point
@@ -468,9 +483,12 @@
      ;; Shading begin/end functions
 
      begin-shader-mode                                     ; Begin custom shader drawing
-     end-shader-mode                                       ; End custom shader drawing (use default shader)
-     begin-blend-mode                                      ; Begin blending mode (alpha, additive, multiplied)
-     end-blend-mode                                        ; End blending mode (reset to default: alpha blending)
+     end-shader-mode                                       ; End custom shader drawing
+                                                           ; (use default shader)
+     begin-blend-mode                                      ; Begin blending mode
+                                                           ; (alpha, additive, multiplied)
+     end-blend-mode                                        ; End blending mode (reset to default:
+                                                           ; alpha blending)
      ;; begin-scissor-mode                                    ; Begin scissor mode (define screen area for following drawing)
      ;; end-scissor-mode                                      ; End scissor mode
 

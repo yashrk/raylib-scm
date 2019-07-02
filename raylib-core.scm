@@ -78,6 +78,33 @@
 
 ;; Files management functions
 
+(foreign-predicate is-file-dropped "IsFileDropped" int ())
+
+(define get-dropped-files
+  (foreign-safe-lambda* scheme-object ()
+    "int count = 0;
+     C_word lst = C_SCHEME_END_OF_LIST;
+     C_word str_len, str;
+     C_word* p;
+
+     char** droppedFiles = GetDroppedFiles(&count);
+
+     if (count == 0) {
+       C_return(C_SCHEME_FALSE);
+     }
+
+     for (int i=0; i<count; i++) {
+       str_len = strlen(droppedFiles[i]);
+       p = C_alloc(C_SIZEOF_PAIR + C_SIZEOF_STRING(str_len));
+       str = C_string(&p, str_len, droppedFiles[i]);
+       lst = C_a_pair(&p, str, lst);
+     }
+
+     C_return(lst);"))
+
+(define clear-dropped-files
+  (foreign-lambda void "ClearDroppedFiles"))
+
 ;; Persistent storage management
 
 ;;; Input Handling Functions (Module: core)

@@ -17,6 +17,7 @@ Chiken Scheme bindings for Raylib Game Library (https://www.raylib.com/, https:/
        * [input keys](#input-keys)
        * [input mouse](#input-mouse)
        * [mouse wheel](#mouse-wheel)
+       * [drop files](#drop-files)
        * [random values](#random-values)
        * [color select](#color-select)
        * [3d mode](#3d-mode)
@@ -92,6 +93,9 @@ Click to screenshot to see source code of the respective example.
 
 #### mouse wheel
 [![mouse wheel](https://github.com/yashrk/raylib-scm/blob/master/examples/core/mouse_wheel/mouse_wheel.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/mouse_wheel/)
+
+#### drop files
+[![drop files](https://github.com/yashrk/raylib-scm/blob/master/examples/core/drop_files/drop_files.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/drop_files/)
 
 #### random values
 [![random values](https://github.com/yashrk/raylib-scm/blob/master/examples/core/random_values/random_values.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/random_values/)
