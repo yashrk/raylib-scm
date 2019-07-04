@@ -24,6 +24,8 @@ Chiken Scheme bindings for Raylib Game Library (https://www.raylib.com/, https:/
        * [3d picking](#3d-picking)
        * [3d camera free](#3d-camera-free)
        * [3d camera first person](#3d-camera-first-person)
+    * [shapes](#shapes)
+       * [collision area](#collision-area)
     * [textures](#textures)
        * [particles blending](#particles-blending)
     * [models](#models)
@@ -114,6 +116,11 @@ Click to screenshot to see source code of the respective example.
 
 #### 3d camera first person
 [![3d camera first person](https://github.com/yashrk/raylib-scm/blob/master/examples/core/3d_camera_first_person/3d_camera_first_person.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/core/3d_camera_first_person/)
+
+### shapes
+
+#### collision area
+[![collision area](https://github.com/yashrk/raylib-scm/blob/master/examples/shapes/collision_area/collision_area.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/shapes/collision_area/)
 
 ### textures
 

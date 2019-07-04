@@ -115,6 +115,12 @@
 
 (foreign-predicate is-mouse-button-pressed? "IsMouseButtonPressed" int ((int mouseButton)))
 
+(define get-mouse-x
+  (foreign-lambda int "GetMouseX"))
+
+(define get-mouse-y
+  (foreign-lambda int "GetMouseY"))
+
 (foreign-constructor get-mouse-position
                      "GetMousePosition"
                      vector-2

@@ -33,6 +33,19 @@
 
 ;;; Basic shapes collision detection functions
 
+(foreign-predicate check-collision-recs
+                   "CheckCollisionRecs"
+                   int
+                   (((c-pointer (struct Rectangle)) rec1)
+                    ((c-pointer (struct Rectangle)) rec2)))
+
+(foreign-constructor get-collision-rec
+                     "GetCollisionRec"
+                     rectangle
+                     (c-pointer (struct Rectangle))
+                     (((c-pointer (struct Rectangle)) rec1)
+                      ((c-pointer (struct Rectangle)) rec2)))
+
 (foreign-predicate check-collision-point-rec
                    "CheckCollisionPointRec"
                    int

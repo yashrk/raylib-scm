@@ -157,8 +157,8 @@
      ;; is-mouse-button-down?                                 ; Detect if a mouse button is being pressed
      ;; is-mouse-button-released?                             ; Detect if a mouse button has been released once
      ;; is-mouse-button-up?                                   ; Detect if a mouse button is NOT being pressed
-     ;; get-mouse-x                                           ; Returns mouse position X
-     ;; get-mouse-y                                           ; Returns mouse position Y
+     get-mouse-x                                           ; Returns mouse position X
+     get-mouse-y                                           ; Returns mouse position Y
      get-mouse-position                                    ; Returns mouse position XY
      ;; set-mouse-position                                    ; Set mouse position XY
      ;; set-mouse-offset                                      ; Set mouse offset
@@ -229,10 +229,11 @@
 
      ;;; Basic shapes collision detection functions
 
-     ;; check-collision-recs                                  ; Check collision between two rectangles
+     check-collision-recs                                  ; Check collision between two rectangles
      ;; check-collision-circles                               ; Check collision between two circles
      ;; check-collision-circle-rec                            ; Check collision between circle and rectangle
-     ;; get-collision-rec                                     ; Get collision rectangle for two rectangles collision
+     get-collision-rec                                     ; Get collision rectangle for
+                                                           ; two rectangles collision
      check-collision-point-rec                             ; Check if point is inside rectangle
      ;; check-collision-point-circle                          ; Check if point is inside circle
      ;; check-collision-point-triangle                        ; Check if point is inside a triangle
@@ -353,7 +354,8 @@
 
      ;; text-is-equal                                         ; Check if two text string are equal
      ;; text-length                                           ; Get text length, checks for '\0' ending
-     ;; text-format                                           ; Text formatting with variables (sprintf style)
+     ;; text-format                                           ; Text formatting with variables
+     ;;                                                       ; (sprintf style)
      ;; text-subtext                                          ; Get a piece of a text string
      ;; text-replace                                          ; Replace text string (memory should be freed!)
      ;; text-insert                                           ; Insert text in a position (memory should be freed!)
