@@ -10,7 +10,7 @@
 (define screen-height 450)
 
 ; 100K bunnies limit
-(define max-bunnies       100000)
+(define max-bunnies 100000)
 ; This is the maximum amount of elements (quads) per batch
 ; NOTE: This value is defined in [rlgl] module and can be changed there
 (define max-batch-elements 8192)
