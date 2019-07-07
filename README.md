@@ -28,6 +28,7 @@ Chiken Scheme bindings for Raylib Game Library (https://www.raylib.com/, https:/
        * [collision area](#collision-area)
     * [textures](#textures)
        * [particles blending](#particles-blending)
+       * [bunnymark](#bunnymark)
     * [models](#models)
        * [box collisions](#box-collisions)
        * [obj loading](#obj-loading)
@@ -126,6 +127,9 @@ Click to screenshot to see source code of the respective example.
 
 #### particles blending
 [![particles blending](https://github.com/yashrk/raylib-scm/blob/master/examples/textures/particles_blending/particles_blending.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/textures/particles_blending/)
+
+#### bunnymark
+[![bunnymark](https://github.com/yashrk/raylib-scm/blob/master/examples/textures/bunnymark/bunnymark.png)](https://github.com/yashrk/raylib-scm/tree/master/examples/textures/bunnymark/)
 
 ### models
 

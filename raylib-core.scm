@@ -115,6 +115,12 @@
 
 (foreign-predicate is-mouse-button-pressed? "IsMouseButtonPressed" int ((int mouseButton)))
 
+(foreign-predicate is-mouse-button-down? "IsMouseButtonDown" int ((int mouseButton)))
+
+(foreign-predicate is-mouse-button-released? "IsMouseButtonReleased" int ((int mouseButton)))
+
+(foreign-predicate is-mouse-button-up? "IsMouseButtonUp" int ((int mouseButton)))
+
 (define get-mouse-x
   (foreign-lambda int "GetMouseX"))
 

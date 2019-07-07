@@ -154,9 +154,12 @@
 
      is-mouse-button-pressed?                              ; Detect if a mouse button has been
                                                            ; pressed once
-     ;; is-mouse-button-down?                                 ; Detect if a mouse button is being pressed
-     ;; is-mouse-button-released?                             ; Detect if a mouse button has been released once
-     ;; is-mouse-button-up?                                   ; Detect if a mouse button is NOT being pressed
+     is-mouse-button-down?                                 ; Detect if a mouse button
+                                                           ; is being pressed
+     is-mouse-button-released?                             ; Detect if a mouse button
+                                                           ; has been released once
+     is-mouse-button-up?                                   ; Detect if a mouse button
+                                                           ; is NOT being pressed
      get-mouse-x                                           ; Returns mouse position X
      get-mouse-y                                           ; Returns mouse position Y
      get-mouse-position                                    ; Returns mouse position XY
