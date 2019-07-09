@@ -51,13 +51,13 @@
 
 ;; Texture2D drawing functions
 
-(foreign-define-with-struct draw-texture
-                            "DrawTexture"
-                            void
-                            (((c-pointer (struct Texture2D)) texture)
-                             (int posX)
-                             (int posY)
-                             ((c-pointer (struct Color)) tint)))
+(define (draw-texture texture pos-x pos-y tint)
+  ((foreign-lambda* void (((c-pointer (struct Texture2D)) texture)
+                          (int posX)
+                          (int posY)
+                          (rayc tint))
+       "DrawTexture(*texture, posX, posY, *((Color*)tint));")
+   texture pos-x pos-y tint))
 
 (foreign-define-with-struct draw-texture-rec
                             "DrawTextureRec"

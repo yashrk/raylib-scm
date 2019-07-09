@@ -57,23 +57,23 @@
    target-camera))
 
 (define (color-r target-color)
-  ((foreign-lambda* unsigned-short (((c-pointer (struct Color)) color))
-     "C_return(color->r);")
+  ((foreign-lambda* unsigned-short ((rayc color))
+     "C_return(((Color*)color)->r);")
    target-color))
 
 (define (color-g target-color)
-  ((foreign-lambda* unsigned-short (((c-pointer (struct Color)) color))
-     "C_return(color->g);")
+  ((foreign-lambda* unsigned-short ((rayc color))
+     "C_return(((Color*)color)->r);")
    target-color))
 
 (define (color-b target-color)
-  ((foreign-lambda* unsigned-short (((c-pointer (struct Color)) color))
-     "C_return(color->b);")
+  ((foreign-lambda* unsigned-short ((rayc color))
+     "C_return(((Color*)color)->r);")
    target-color))
 
 (define (color-a target-color)
-  ((foreign-lambda* unsigned-short (((c-pointer (struct Color)) color))
-     "C_return(color->a);")
+  ((foreign-lambda* unsigned-short ((rayc color))
+     "C_return(((Color*)color)->r);")
    target-color))
 
 (define (get-diffuse-texture cur-model material-index)
@@ -97,14 +97,6 @@
                        (float fovy)
                        (int type)))
 
-(foreign-constructor* make-color
-                      color
-                      "Color"
-                      ((unsigned-int r)
-                       (unsigned-int g)
-                       (unsigned-int b)
-                       (unsigned-int a)))
-
 (foreign-constructor* make-ray
                       bounding-box
                       "Ray"
@@ -125,12 +117,6 @@
                       ((unsigned-int id)
                        ((c-pointer (struct Texture2D)) texture)
                        ((c-pointer (struct Texture2D)) depth)))
-
-(foreign-constructor* make-vector-2
-                      vector-2
-                      "Vector2"
-                      ((float x)
-                       (float y)))
 
 (foreign-constructor* make-vector-3
                       vector-3
@@ -254,15 +240,13 @@
      "C_return(texture->height);")
    texture))
 
-(define (vector-2-x vector)
-  ((foreign-lambda* float (((c-pointer (struct Vector2)) vector))
-     "C_return(vector->x);")
-   vector))
+(define vector-2-x
+  (foreign-lambda* float ((v-2 v))
+    "C_return(((Vector2*)v)->x);"))
 
-(define (vector-2-y vector)
-  ((foreign-lambda* float (((c-pointer (struct Vector2)) vector))
-     "C_return(vector->y);")
-   vector))
+(define vector-2-y
+  (foreign-lambda* float ((v-2 v))
+    "C_return(((Vector2*)v)->y);"))
 
 (define (vector-3-x vector)
   ((foreign-lambda* float (((c-pointer (struct Vector3)) vector))

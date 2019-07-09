@@ -7,14 +7,14 @@
                              (float radius)
                              ((c-pointer (struct Color)) color)))
 
-(foreign-define-with-struct draw-rectangle
-                            "DrawRectangle"
-                            void
-                            ((int posX)
-                             (int posY)
-                             (int width)
-                             (int height)
-                             ((c-pointer (struct Color)) color)))
+(define (draw-rectangle pos-x pos-y width height color)
+  ((foreign-lambda* void ((int posX)
+                         (int posY)
+                         (int width)
+                         (int height)
+                         (rayc color))
+     "DrawRectangle(posX, posY, width, height, *((Color*)color));")
+   pos-x pos-y width height color))
 
 (foreign-define-with-struct draw-rectangle-rec
                             "DrawRectangleRec"

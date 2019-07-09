@@ -1,3 +1,37 @@
+;;; Constructors of raylib types
+
+; Color
+(define sizeof-color (foreign-value "sizeof(Color)" int))
+(define-record rayc buffer)
+(define-foreign-type rayc scheme-pointer rayc-buffer)
+(define (make-color r g b a)
+  (define set-fields!
+    (foreign-lambda* void ((rayc c)
+                           (unsigned-short r)
+                           (unsigned-short g)
+                           (unsigned-short b)
+                           (unsigned-short a))
+      "((Color*)c)->r = r;
+       ((Color*)c)->g = g;
+       ((Color*)c)->b = b;
+       ((Color*)c)->a = a;"))
+  (let ((c (make-rayc (make-blob sizeof-color))))
+    (set-fields! c r g b a)
+    c))
+
+; Vector2
+(define sizeof-vector-2 (foreign-value "sizeof(Vector2)" int))
+(define-record v-2 buffer)
+(define-foreign-type v-2 scheme-pointer v-2-buffer)
+(define (make-vector-2 x y)
+  (define set-fields!
+    (foreign-lambda* void ((v-2 v) (float x) (float y))
+      "((Vector2*)v)->x = x;
+       ((Vector2*)v)->y = y;"))
+  (let ((v (make-v-2 (make-blob sizeof-vector-2))))
+    (set-fields! v x y)
+    v))
+
 ;;; Window and Graphics Device Functions (Module: core)
 
 ;; Window-related functions
@@ -12,10 +46,10 @@
 
 ;; Drawing-related functions
 
-(foreign-define-with-struct clear-background
-                            "ClearBackground"
-                            void
-                            (((c-pointer (struct Color)) color)))
+(define (clear-background color)
+  ((foreign-lambda* void ((rayc color))
+     "ClearBackground(*((Color*)color));")
+   color))
 
 (define begin-drawing
   (foreign-lambda void "BeginDrawing"))
@@ -58,12 +92,12 @@
 
 ;; Color-related functions
 
-(foreign-constructor fade
-                     "Fade"
-                     color
-                     (c-pointer (struct Color))
-                     (((c-pointer (struct Color)) baseColor)
-                      (float alpha)))
+(define (fade base-color alpha)
+  (let ((c (make-rayc (make-blob sizeof-color))))
+    ((foreign-lambda* void ((rayc c) (rayc baseColor) (float alpha))
+      "*((Color*)c) = Fade(*((Color*)baseColor), alpha);")
+     c base-color alpha)
+    c))
 
 ;; Misc. functions
 
@@ -127,10 +161,12 @@
 (define get-mouse-y
   (foreign-lambda int "GetMouseY"))
 
-(foreign-constructor get-mouse-position
-                     "GetMousePosition"
-                     vector-2
-                     (c-pointer (struct Vector2)))
+(define (get-mouse-position)
+  (let ((v (make-v-2 (make-blob sizeof-vector-2))))
+    ((foreign-lambda* void ((v-2 v))
+       "*((Vector2*)v) = GetMousePosition();")
+     v)
+    v))
 
 (define get-mouse-wheel-move
   (foreign-lambda int "GetMouseWheelMove"))
