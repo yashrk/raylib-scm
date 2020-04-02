@@ -53,6 +53,14 @@ Please note: although Raylib itself is licensed by BSD-like license, this librar
 
 ## Installation
 
+In order to compile the raylib-scm egg, raylib itself need to be compiled with the "-fPIC" flag.
+You cann achieve this by adding 
+```
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+```
+to the CMakeFile.txt of raylib and recompile it.
+
+
 In the root directory of the project:
 ```
 sudo chicken-install
@@ -61,6 +69,12 @@ sudo chicken-install
 ## Usage
 
 See `examples` directory.
+
+In order to compile the examples, a bunch of 3rd party chicken scheme egg is needed. Do:
+
+```
+ chicken-install defstruct format records miscmacros regex vlist
+```
 
 ## ToDo
 
