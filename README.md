@@ -76,6 +76,11 @@ In order to compile the examples, a bunch of 3rd party chicken scheme egg is nee
  chicken-install defstruct format records miscmacros regex vlist
 ```
 
+Some of the examples, of course, use graphics and need some libraries to run. You can achieve this via
+```
+LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libX11.so.6 ./yourDemoApp
+```
+
 ## ToDo
 
  - [ ] Implement enough bindings to rewrite in Scheme all Raylib examples
